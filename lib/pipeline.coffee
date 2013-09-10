@@ -99,8 +99,11 @@ pipeline = Em.Object.extend
   slice: (begin,end=null)->
     @_addTransformation('slice', {begin: begin, end: end})
 
-  sort: (compareFunction)->
+  sort: (compareFunction=undefined)->
     @_addTransformation('sort', {compareFunction: compareFunction})
+
+  sortBy: (key,compareFunction=undefined)->
+    @_addTransformation('sortBy', {key: key, compareFunction: compareFunction})
 
   take: (howMany)->
     @_addTransformation('take', {howMany: howMany})

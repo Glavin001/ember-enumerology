@@ -55,6 +55,7 @@ describe 'Enumerology.Pipeline', ->
   itIsATransformation('setEach')
   itIsATransformation('slice')
   itIsATransformation('sort')
+  itIsATransformation('sortBy')
   itIsATransformation('take')
   itIsATransformation('toSentence')
   itIsATransformation('uniq')
