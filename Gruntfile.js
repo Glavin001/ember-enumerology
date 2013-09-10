@@ -58,6 +58,10 @@ module.exports = function(grunt) {
         }
       }
     },
+    bower: {
+      install: {
+      }
+    },
     watch: {
       coffee_lib: {
         files: 'lib/**/*.coffee',
@@ -84,8 +88,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-contrib-coffee');
+  grunt.loadNpmTasks('grunt-bower-task');
 
   // Default task.
-  grunt.registerTask('default', ['coffee:lib', 'coffee:spec', 'jasmine:enumerology', 'concat', 'uglify']);
+  grunt.registerTask('default', ['bower:install', 'coffee:lib', 'coffee:spec', 'jasmine:enumerology', 'concat', 'uglify']);
 
 };
