@@ -66,7 +66,7 @@ pipeline = Em.Object.extend
   invoke: (methodName, args...)->
     @_addTransformation('invoke', {methodName: methodName, args: args})
 
-  join: (separator)->
+  join: (separator=' ')->
     @_addTransformation('join', {separator: separator})
 
   last: ->
