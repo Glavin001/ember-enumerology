@@ -1,0 +1,12 @@
+{
+  "name": "ember-enumerology",
+  "version": "0.0.10",
+  "dependencies": {
+    "ember": "~1.0.0"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components"
+  ]
+}

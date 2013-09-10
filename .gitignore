@@ -1,0 +1,4 @@
+/node_modules/
+lib/**/*.js
+spec/**/*.js
+_SpecRunner.html
