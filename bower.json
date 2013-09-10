@@ -1,12 +1,27 @@
 {
   "name": "ember-enumerology",
-  "version": "0.0.10",
+  "version": "0.1.0",
   "dependencies": {
     "ember": "~1.0.0"
   },
   "ignore": [
     "**/.*",
     "node_modules",
-    "components"
-  ]
+    "components",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "homepage": "https://github.com/jamesotron/ember-enumerology",
+  "authors": [
+    "James Harton <james@resistor.io>"
+  ],
+  "description": "Automagic creation of computed properties from enumerable chains.",
+  "main": "dist/ember-enumerology.js",
+  "keywords": [
+    "ember",
+    "enumerable",
+    "computed"
+  ],
+  "license": "MIT"
 }
