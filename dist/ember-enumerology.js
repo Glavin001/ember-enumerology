@@ -8,7 +8,7 @@
 
 (function() {
   window.Enumerology = Em.Namespace.create({
-    VERSION: '0.10.0',
+    VERSION: '0.1.0',
     create: function(dependentKey) {
       return Enumerology.Pipeline.create({
         dependentKey: dependentKey
@@ -134,6 +134,9 @@
         value: value
       });
     },
+    first: function() {
+      return this._addTransformation('first');
+    },
     invoke: function() {
       var args, methodName;
       methodName = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -141,6 +144,17 @@
         methodName: methodName,
         args: args
       });
+    },
+    join: function(separator) {
+      if (separator == null) {
+        separator = ' ';
+      }
+      return this._addTransformation('join', {
+        separator: separator
+      });
+    },
+    last: function() {
+      return this._addTransformation('last');
     },
     length: function() {
       return this._addTransformation('length');
@@ -183,10 +197,56 @@
         value: value
       });
     },
+    reverse: function() {
+      return this._addTransformation('reverse');
+    },
     setEach: function(key, value) {
       return this._addTransformation('setEach', {
         key: key,
         value: value
+      });
+    },
+    slice: function(begin, end) {
+      if (end == null) {
+        end = null;
+      }
+      return this._addTransformation('slice', {
+        begin: begin,
+        end: end
+      });
+    },
+    sort: function(compareFunction) {
+      if (compareFunction == null) {
+        compareFunction = void 0;
+      }
+      return this._addTransformation('sort', {
+        compareFunction: compareFunction
+      });
+    },
+    sortBy: function(key, compareFunction) {
+      if (compareFunction == null) {
+        compareFunction = void 0;
+      }
+      return this._addTransformation('sortBy', {
+        key: key,
+        compareFunction: compareFunction
+      });
+    },
+    take: function(howMany) {
+      return this._addTransformation('take', {
+        howMany: howMany
+      });
+    },
+    toSentence: function(conjunction, oxfordComma) {
+      if (conjunction == null) {
+        conjunction = 'and';
+      }
+      if (oxfordComma == null) {
+        oxfordComma = false;
+      }
+      return this._addTransformation('toSentence', {
+        conjunction: conjunction,
+        oxfordComma: oxfordComma
       });
     },
     uniq: function() {
@@ -198,6 +258,9 @@
       });
     },
     _addTransformation: function(name, opts) {
+      if (opts == null) {
+        opts = {};
+      }
       this.get('transformations').addObject(Enumerology.Transform[classify(name)].create(opts));
       return this;
     }
@@ -354,6 +417,19 @@
 }).call(this);
 
 (function() {
+  var first;
+
+  first = Enumerology.Transform.extend({
+    apply: function(target, collection) {
+      return collection.get('firstObject');
+    }
+  });
+
+  Enumerology.Transform.First = first;
+
+}).call(this);
+
+(function() {
   var invoke,
     __slice = [].slice;
 
@@ -364,6 +440,32 @@
   });
 
   Enumerology.Transform.Invoke = invoke;
+
+}).call(this);
+
+(function() {
+  var join;
+
+  join = Enumerology.Transform.extend({
+    apply: function(target, collection) {
+      return collection.join(this.get('separator'));
+    }
+  });
+
+  Enumerology.Transform.Join = join;
+
+}).call(this);
+
+(function() {
+  var last;
+
+  last = Enumerology.Transform.extend({
+    apply: function(target, collection) {
+      return collection.get('lastObject');
+    }
+  });
+
+  Enumerology.Transform.Last = last;
 
 }).call(this);
 
@@ -446,6 +548,19 @@
 }).call(this);
 
 (function() {
+  var reverse;
+
+  reverse = Enumerology.Transform.extend({
+    apply: function(target, collection) {
+      return collection.slice(0).reverse();
+    }
+  });
+
+  Enumerology.Transform.Reverse = reverse;
+
+}).call(this);
+
+(function() {
   var setEach;
 
   setEach = Enumerology.TransformBy.extend({
@@ -456,6 +571,107 @@
   });
 
   Enumerology.Transform.SetEach = setEach;
+
+}).call(this);
+
+(function() {
+  var slice;
+
+  slice = Enumerology.Transform.extend({
+    apply: function(target, collection) {
+      var begin, end;
+      begin = this.get('begin');
+      end = this.get('end');
+      if (Em.isEmpty(end)) {
+        return collection.slice(begin);
+      } else {
+        return collection.slice(begin, end);
+      }
+    }
+  });
+
+  Enumerology.Transform.Slice = slice;
+
+}).call(this);
+
+(function() {
+  var sort;
+
+  sort = Enumerology.Transform.extend({
+    apply: function(target, collection) {
+      var compareFunction;
+      compareFunction = this.get('compareFunction');
+      if (Em.isEmpty(compareFunction)) {
+        return collection.slice(0).sort();
+      } else {
+        return collection.slice(0).sort(this.get('compareFunction'));
+      }
+    }
+  });
+
+  Enumerology.Transform.Sort = sort;
+
+}).call(this);
+
+(function() {
+  var lexigraphicCompare, sortBy;
+
+  lexigraphicCompare = function(a, b) {
+    var _a, _b;
+    _a = a.toString();
+    _b = b.toString();
+    if (_a === _b) {
+      return 0;
+    } else if (_a > _b) {
+      return 1;
+    } else if (_a < _b) {
+      return -1;
+    }
+  };
+
+  sortBy = Enumerology.TransformBy.extend({
+    apply: function(target, collection) {
+      var compareFunction, key;
+      compareFunction = this.getWithDefault('compareFunction', lexigraphicCompare);
+      key = this.get('key');
+      return collection.slice(0).sort(function(a, b) {
+        return compareFunction(a.get(key), b.get(key));
+      });
+    }
+  });
+
+  Enumerology.Transform.SortBy = sortBy;
+
+}).call(this);
+
+(function() {
+  var take;
+
+  take = Enumerology.Transform.extend({
+    apply: function(target, collection) {
+      return collection.slice(0, this.get('howMany'));
+    }
+  });
+
+  Enumerology.Transform.Take = take;
+
+}).call(this);
+
+(function() {
+  var toSentence;
+
+  toSentence = Enumerology.Transform.extend({
+    apply: function(target, collection) {
+      var conjunction, last, list, oxfordComma;
+      list = collection.slice(0, -1);
+      last = collection.slice(-1);
+      conjunction = this.get('conjunction');
+      oxfordComma = this.get('oxfordComma') ? ',' : '';
+      return "" + (list.join(', ')) + oxfordComma + " " + conjunction + " " + last;
+    }
+  });
+
+  Enumerology.Transform.ToSentence = toSentence;
 
 }).call(this);
 
