@@ -1,5 +1,7 @@
 # ember-enumerology
 
+[![Build Status](https://travis-ci.org/jamesotron/ember-enumerology.png)](https://travis-ci.org/jamesotron/ember-enumerology)
+
 Automagic creation of computed properties from enumerable chains.
 
 ## Getting Started
