@@ -32,14 +32,20 @@ describe 'Acceptance', ->
   itCalculatesCorrectly 'filterBy', (-> Enumerology.create('cast').filterBy('name', 'Michael J. Fox').length().finalize()), 1
   itCalculatesCorrectly 'find', (-> Enumerology.create('characters').find((i)-> i == 'Marty').finalize()), 'Marty'
   itCalculatesCorrectly 'findBy', (-> Enumerology.create('cast').filterBy('name', 'Claudia Wells').findBy('name', 'Michael J. Fox').finalize()), null
+  itCalculatesCorrectly 'first', (-> Enumerology.create('characters').first().finalize()), 'Marty'
   itCalculatesCorrectly 'invoke', (-> Enumerology.create('cast').invoke('get', 'name').finalize()), ['Michael J. Fox', 'Christopher Lloyd', 'Claudia Wells']
   itCalculatesCorrectly 'join', (-> Enumerology.create('characters').compact().join(', ').finalize()), 'Marty, Doc, Jennifer'
+  itCalculatesCorrectly 'last', (-> Enumerology.create('characters').compact().last().finalize()), 'Jennifer'
   itCalculatesCorrectly 'length', (-> Enumerology.create('cast').length().finalize()), 3
   itCalculatesCorrectly 'map', (-> Enumerology.create('characters').compact().map((i)-> i.toUpperCase()).finalize()), ['MARTY', 'DOC', 'JENNIFER']
   itCalculatesCorrectly 'mapBy', (-> Enumerology.create('cast').compact().mapBy('name').finalize()), ['Michael J. Fox', 'Christopher Lloyd', 'Claudia Wells']
   itCalculatesCorrectly 'reduce', (-> Enumerology.create('characters').compact().reduce(((sum,i)-> sum += i.length), 0).finalize()), 16
   itCalculatesCorrectly 'reject', (-> Enumerology.create('characters').reject((i)-> i == null).length().finalize()), 3
   itCalculatesCorrectly 'rejectBy', (-> Enumerology.create('cast').rejectBy('name', 'Christopher Lloyd').length().finalize()), 2
+  itCalculatesCorrectly 'reverse', (-> Enumerology.create('characters').compact().reverse().finalize()), ['Jennifer', 'Doc', 'Marty']
   itCalculatesCorrectly 'setEach', (-> Enumerology.create('cast').setEach('name', 'Biff').filterBy('name', 'Biff').length().finalize()), 3
+  itCalculatesCorrectly 'sort', (-> Enumerology.create('characters').compact().sort().finalize()), ['Doc', 'Jennifer', 'Marty']
+  itCalculatesCorrectly 'slice', (-> Enumerology.create('characters').slice(1,3).finalize()), ['Doc', 'Jennifer']
+  itCalculatesCorrectly 'take', (-> Enumerology.create('characters').take(2).finalize()), ['Marty', 'Doc']
   itCalculatesCorrectly 'toSentence', (-> Enumerology.create('characters').compact().toSentence().finalize()), 'Marty, Doc and Jennifer'
   itCalculatesCorrectly 'uniq', (-> Enumerology.create('cast').setEach('name', 'Biff').mapBy('name').uniq().finalize()), ['Biff']

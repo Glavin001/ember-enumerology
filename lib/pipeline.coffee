@@ -60,11 +60,17 @@ pipeline = Em.Object.extend
   findBy: (key, value=null)->
     @_addTransformation('findBy', {key: key, value: value})
 
+  first: ->
+    @_addTransformation('first')
+
   invoke: (methodName, args...)->
     @_addTransformation('invoke', {methodName: methodName, args: args})
 
   join: (separator)->
     @_addTransformation('join', {separator: separator})
+
+  last: ->
+    @_addTransformation('last')
 
   length: ->
     @_addTransformation('length')
@@ -84,8 +90,20 @@ pipeline = Em.Object.extend
   rejectBy: (key, value=null)->
     @_addTransformation('rejectBy', {key: key, value: value})
 
+  reverse: ->
+    @_addTransformation('reverse')
+
   setEach: (key, value)->
     @_addTransformation('setEach', {key: key, value: value})
+
+  slice: (begin,end=null)->
+    @_addTransformation('slice', {begin: begin, end: end})
+
+  sort: (compareFunction)->
+    @_addTransformation('sort', {compareFunction: compareFunction})
+
+  take: (howMany)->
+    @_addTransformation('take', {howMany: howMany})
 
   toSentence: (conjunction='and', oxfordComma=false)->
     @_addTransformation('toSentence', {conjunction: conjunction, oxfordComma: oxfordComma})
@@ -96,7 +114,7 @@ pipeline = Em.Object.extend
   without: (value)->
     @_addTransformation('without', {value: value})
 
-  _addTransformation: (name, opts)->
+  _addTransformation: (name, opts={})->
     @get('transformations').addObject(Enumerology.Transform[classify(name)].create(opts))
     @
 
