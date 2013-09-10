@@ -40,7 +40,7 @@ module.exports = function(grunt) {
       spec: {
         bare: true,
         files: {
-          'spec/ember-enumerology_spec.js': ['spec/lib/*.coffee', 'spec/lib/transforms/*.coffee'],
+          'spec/ember-enumerology_spec.js': ['spec/*.coffee', 'spec/lib/*.coffee', 'spec/lib/transforms/*.coffee'],
         }
       }
     },

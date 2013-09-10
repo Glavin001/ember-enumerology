@@ -63,6 +63,9 @@ pipeline = Em.Object.extend
   invoke: (methodName, args...)->
     @_addTransformation('invoke', {methodName: methodName, args: args})
 
+  join: (separator)->
+    @_addTransformation('join', {separator: separator})
+
   length: ->
     @_addTransformation('length')
 
@@ -83,6 +86,9 @@ pipeline = Em.Object.extend
 
   setEach: (key, value)->
     @_addTransformation('setEach', {key: key, value: value})
+
+  toSentence: (conjunction='and', oxfordComma=false)->
+    @_addTransformation('toSentence', {conjunction: conjunction, oxfordComma: oxfordComma})
 
   uniq: ->
     @_addTransformation('uniq')

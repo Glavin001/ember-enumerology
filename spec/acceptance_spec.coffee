@@ -33,6 +33,7 @@ describe 'Acceptance', ->
   itCalculatesCorrectly 'find', (-> Enumerology.create('characters').find((i)-> i == 'Marty').finalize()), 'Marty'
   itCalculatesCorrectly 'findBy', (-> Enumerology.create('cast').filterBy('name', 'Claudia Wells').findBy('name', 'Michael J. Fox').finalize()), null
   itCalculatesCorrectly 'invoke', (-> Enumerology.create('cast').invoke('get', 'name').finalize()), ['Michael J. Fox', 'Christopher Lloyd', 'Claudia Wells']
+  itCalculatesCorrectly 'join', (-> Enumerology.create('characters').compact().join(', ').finalize()), 'Marty, Doc, Jennifer'
   itCalculatesCorrectly 'length', (-> Enumerology.create('cast').length().finalize()), 3
   itCalculatesCorrectly 'map', (-> Enumerology.create('characters').compact().map((i)-> i.toUpperCase()).finalize()), ['MARTY', 'DOC', 'JENNIFER']
   itCalculatesCorrectly 'mapBy', (-> Enumerology.create('cast').compact().mapBy('name').finalize()), ['Michael J. Fox', 'Christopher Lloyd', 'Claudia Wells']
@@ -40,4 +41,5 @@ describe 'Acceptance', ->
   itCalculatesCorrectly 'reject', (-> Enumerology.create('characters').reject((i)-> i == null).length().finalize()), 3
   itCalculatesCorrectly 'rejectBy', (-> Enumerology.create('cast').rejectBy('name', 'Christopher Lloyd').length().finalize()), 2
   itCalculatesCorrectly 'setEach', (-> Enumerology.create('cast').setEach('name', 'Biff').filterBy('name', 'Biff').length().finalize()), 3
+  itCalculatesCorrectly 'toSentence', (-> Enumerology.create('characters').compact().toSentence().finalize()), 'Marty, Doc and Jennifer'
   itCalculatesCorrectly 'uniq', (-> Enumerology.create('cast').setEach('name', 'Biff').mapBy('name').uniq().finalize()), ['Biff']

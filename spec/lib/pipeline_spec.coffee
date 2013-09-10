@@ -42,6 +42,7 @@ describe 'Enumerology.Pipeline', ->
   itIsATransformation('find')
   itIsATransformation('findBy')
   itIsATransformation('invoke')
+  itIsATransformation('join')
   itIsATransformation('length')
   itIsATransformation('map')
   itIsATransformation('mapBy')
@@ -49,6 +50,7 @@ describe 'Enumerology.Pipeline', ->
   itIsATransformation('reject')
   itIsATransformation('rejectBy')
   itIsATransformation('setEach')
+  itIsATransformation('toSentence')
   itIsATransformation('uniq')
   itIsATransformation('without')
 
