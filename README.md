@@ -177,6 +177,20 @@ Sorts a collection of objects by the value of a named property.
 - `key` - the property name to sort on.
 - `compareFunction` - a function to define a custome sort operation. See: [Array#sort](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort)
 
+### `sortNumerically`
+
+Sorts a collection of objects numerically (instead of lexigraphically, as JavaScript does by default).
+
+see: [Array#sort](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort)
+
+### `sortNumericallyBy`
+
+Sorts a collection of objects numerically by the value of a named property.
+
+#### Parameters
+
+- `key` the property name to sort on.
+
 ### `take`
 
 Take the first `n` elements from the collection.
