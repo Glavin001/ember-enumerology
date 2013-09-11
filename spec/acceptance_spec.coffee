@@ -50,3 +50,31 @@ describe 'Acceptance', ->
   itCalculatesCorrectly 'take', (-> Enumerology.create('characters').take(2).finalize()), ['Marty', 'Doc']
   itCalculatesCorrectly 'toSentence', (-> Enumerology.create('characters').compact().toSentence().finalize()), 'Marty, Doc and Jennifer'
   itCalculatesCorrectly 'uniq', (-> Enumerology.create('cast').setEach('name', 'Biff').mapBy('name').uniq().finalize()), ['Biff']
+
+  describe 'Enumerology.Transform dependencies', ->
+    beforeEach ->
+      run ->
+        object = Em.Object.extend(
+          characters: ['Marty', 'Doc', 'Jennifer', null]
+          sortedCharacters: Enumerology.create('characters').compact().sort().finalize()
+        ).create()
+
+    it 'updates when the data changes', ->
+      run ->
+        expect(object.get('sortedCharacters')).toEqual(['Doc', 'Jennifer', 'Marty'])
+        object.get('characters').addObject('Biff')
+        expect(object.get('sortedCharacters')).toEqual(['Biff', 'Doc', 'Jennifer', 'Marty'])
+
+  describe 'Enumerology.TransformBy dependencies', ->
+    beforeEach ->
+      run ->
+        object = Em.Object.extend(
+          cast: [Em.Object.create(name: 'Michael J. Fox'), Em.Object.create(name: 'Christopher Lloyd'), Em.Object.create(name: 'Claudia Wells')]
+          sortedCast: Enumerology.create('cast').compact().sortBy('name').finalize()
+        ).create()
+
+    it 'updates when the data changes', ->
+      run ->
+        expect(object.get('sortedCast').mapProperty('name')).toEqual([ 'Christopher Lloyd', 'Claudia Wells', 'Michael J. Fox' ])
+        object.get('cast').addObject(Em.Object.create(name: 'Thomas F. Wilson'))
+        expect(object.get('sortedCast').mapProperty('name')).toEqual([ 'Christopher Lloyd', 'Claudia Wells', 'Michael J. Fox', 'Thomas F. Wilson' ])
