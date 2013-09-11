@@ -1,4 +1,4 @@
-/*! ember-enumerology - v0.2.0 - 2013-09-12
+/*! ember-enumerology - v0.2.1 - 2013-09-12
 * https://github.com/jamesotron/ember-enumerology
 * Copyright (c) 2013 James Harton; Licensed MIT */
 (function() {
@@ -8,7 +8,7 @@
 
 (function() {
   window.Enumerology = Em.Namespace.create({
-    VERSION: '0.2.0',
+    VERSION: '0.2.1',
     create: function(dependentKey) {
       return Enumerology.Pipeline.create({
         dependentKey: dependentKey
@@ -19,7 +19,7 @@
 }).call(this);
 
 (function() {
-  var assert, classify, pipeline,
+  var addTransformation, assert, classify, compare, lexigraphicCompare, numericCompare, pipeline,
     __slice = [].slice;
 
   classify = function(name) {
@@ -30,6 +30,32 @@
     if (!test) {
       throw new Error(msg);
     }
+  };
+
+  lexigraphicCompare = function(a, b) {
+    return compare(a.toString(), b.toString());
+  };
+
+  numericCompare = function(a, b) {
+    return compare(Number(a), Number(b));
+  };
+
+  compare = function(a, b) {
+    if (a > b) {
+      return 1;
+    } else if (a < b) {
+      return -1;
+    } else {
+      return 0;
+    }
+  };
+
+  addTransformation = function(name, opts) {
+    if (opts == null) {
+      opts = {};
+    }
+    this.get('transformations').addObject(Enumerology.Transform[classify(name)].create(opts));
+    return this;
   };
 
   pipeline = Em.Object.extend({
@@ -59,7 +85,7 @@
       }]));
     },
     any: function(callback) {
-      return this._addTransformation('any', {
+      return addTransformation.call(this, 'any', {
         callback: callback
       });
     },
@@ -67,16 +93,16 @@
       if (value == null) {
         value = null;
       }
-      return this._addTransformation('anyBy', {
+      return addTransformation.call(this, 'anyBy', {
         key: key,
         value: value
       });
     },
     compact: function() {
-      return this._addTransformation('compact', {});
+      return addTransformation.call(this, 'compact', {});
     },
     contains: function(obj) {
-      return this._addTransformation('contains', {
+      return addTransformation.call(this, 'contains', {
         obj: obj
       });
     },
@@ -84,7 +110,7 @@
       if (target == null) {
         target = null;
       }
-      return this._addTransformation('every', {
+      return addTransformation.call(this, 'every', {
         callback: callback,
         target: target
       });
@@ -93,7 +119,7 @@
       if (value == null) {
         value = null;
       }
-      return this._addTransformation('everyBy', {
+      return addTransformation.call(this, 'everyBy', {
         key: key,
         value: value
       });
@@ -102,7 +128,7 @@
       if (target == null) {
         target = null;
       }
-      return this._addTransformation('filter', {
+      return addTransformation.call(this, 'filter', {
         callback: callback,
         target: target
       });
@@ -111,7 +137,7 @@
       if (value == null) {
         value = null;
       }
-      return this._addTransformation('filterBy', {
+      return addTransformation.call(this, 'filterBy', {
         key: key,
         value: value
       });
@@ -120,7 +146,7 @@
       if (target == null) {
         target = null;
       }
-      return this._addTransformation('find', {
+      return addTransformation.call(this, 'find', {
         callback: callback,
         target: target
       });
@@ -129,18 +155,18 @@
       if (value == null) {
         value = null;
       }
-      return this._addTransformation('findBy', {
+      return addTransformation.call(this, 'findBy', {
         key: key,
         value: value
       });
     },
     first: function() {
-      return this._addTransformation('first');
+      return addTransformation.call(this, 'first');
     },
     invoke: function() {
       var args, methodName;
       methodName = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-      return this._addTransformation('invoke', {
+      return addTransformation.call(this, 'invoke', {
         methodName: methodName,
         args: args
       });
@@ -149,32 +175,32 @@
       if (separator == null) {
         separator = ' ';
       }
-      return this._addTransformation('join', {
+      return addTransformation.call(this, 'join', {
         separator: separator
       });
     },
     last: function() {
-      return this._addTransformation('last');
+      return addTransformation.call(this, 'last');
     },
     length: function() {
-      return this._addTransformation('length');
+      return addTransformation.call(this, 'length');
     },
     map: function(callback, target) {
       if (target == null) {
         target = null;
       }
-      return this._addTransformation('map', {
+      return addTransformation.call(this, 'map', {
         callback: callback,
         target: target
       });
     },
     mapBy: function(key) {
-      return this._addTransformation('mapBy', {
+      return addTransformation.call(this, 'mapBy', {
         key: key
       });
     },
     reduce: function(callback, initialValue) {
-      return this._addTransformation('reduce', {
+      return addTransformation.call(this, 'reduce', {
         callback: callback,
         initialValue: initialValue
       });
@@ -183,7 +209,7 @@
       if (target == null) {
         target = null;
       }
-      return this._addTransformation('reject', {
+      return addTransformation.call(this, 'reject', {
         callback: callback,
         target: target
       });
@@ -192,16 +218,16 @@
       if (value == null) {
         value = null;
       }
-      return this._addTransformation('rejectBy', {
+      return addTransformation.call(this, 'rejectBy', {
         key: key,
         value: value
       });
     },
     reverse: function() {
-      return this._addTransformation('reverse');
+      return addTransformation.call(this, 'reverse');
     },
     setEach: function(key, value) {
-      return this._addTransformation('setEach', {
+      return addTransformation.call(this, 'setEach', {
         key: key,
         value: value
       });
@@ -210,7 +236,7 @@
       if (end == null) {
         end = null;
       }
-      return this._addTransformation('slice', {
+      return addTransformation.call(this, 'slice', {
         begin: begin,
         end: end
       });
@@ -219,7 +245,7 @@
       if (compareFunction == null) {
         compareFunction = void 0;
       }
-      return this._addTransformation('sort', {
+      return addTransformation.call(this, 'sort', {
         compareFunction: compareFunction
       });
     },
@@ -227,13 +253,27 @@
       if (compareFunction == null) {
         compareFunction = void 0;
       }
-      return this._addTransformation('sortBy', {
+      if (Em.isEmpty(compareFunction)) {
+        compareFunction = lexigraphicCompare;
+      }
+      return addTransformation.call(this, 'sortBy', {
         key: key,
         compareFunction: compareFunction
       });
     },
+    sortNumerically: function() {
+      return addTransformation.call(this, 'sort', {
+        compareFunction: numericCompare
+      });
+    },
+    sortNumericallyBy: function(key) {
+      return addTransformation.call(this, 'sortBy', {
+        key: key,
+        compareFunction: numericCompare
+      });
+    },
     take: function(howMany) {
-      return this._addTransformation('take', {
+      return addTransformation.call(this, 'take', {
         howMany: howMany
       });
     },
@@ -244,25 +284,18 @@
       if (oxfordComma == null) {
         oxfordComma = false;
       }
-      return this._addTransformation('toSentence', {
+      return addTransformation.call(this, 'toSentence', {
         conjunction: conjunction,
         oxfordComma: oxfordComma
       });
     },
     uniq: function() {
-      return this._addTransformation('uniq');
+      return addTransformation.call(this, 'uniq');
     },
     without: function(value) {
-      return this._addTransformation('without', {
+      return addTransformation.call(this, 'without', {
         value: value
       });
-    },
-    _addTransformation: function(name, opts) {
-      if (opts == null) {
-        opts = {};
-      }
-      this.get('transformations').addObject(Enumerology.Transform[classify(name)].create(opts));
-      return this;
     }
   });
 
@@ -614,25 +647,12 @@
 }).call(this);
 
 (function() {
-  var lexigraphicCompare, sortBy;
-
-  lexigraphicCompare = function(a, b) {
-    var _a, _b;
-    _a = a.toString();
-    _b = b.toString();
-    if (_a === _b) {
-      return 0;
-    } else if (_a > _b) {
-      return 1;
-    } else if (_a < _b) {
-      return -1;
-    }
-  };
+  var sortBy;
 
   sortBy = Enumerology.TransformBy.extend({
     apply: function(target, collection) {
       var compareFunction, key;
-      compareFunction = this.getWithDefault('compareFunction', lexigraphicCompare);
+      compareFunction = this.get('compareFunction');
       key = this.get('key');
       return collection.slice(0).sort(function(a, b) {
         return compareFunction(a.get(key), b.get(key));
