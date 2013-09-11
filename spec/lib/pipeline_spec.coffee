@@ -1,4 +1,6 @@
 run = Ember.run
+classify = (name)->
+  name.charAt(0).toUpperCase() + name.slice(1)
 
 describe 'Enumerology.Pipeline', ->
   pipeline = null
@@ -17,10 +19,13 @@ describe 'Enumerology.Pipeline', ->
       run ->
         expect(pipeline.get('transformations')).toEqual([])
 
-  itIsATransformation = (name)->
-    classify = (name)->
-      name.charAt(0).toUpperCase() + name.slice(1)
+  providesMethod = (name)->
+    it "responds to ##{name}", ->
+      run ->
+        expect(pipeline[name]).toBeDefined()
 
+  itIsATransformation = (name)->
+    providesMethod(name)
     describe "##{name}", ->
       it "adds a #{classify(name)} transform", ->
         run ->
@@ -30,6 +35,14 @@ describe 'Enumerology.Pipeline', ->
       it 'returns the pipeline', ->
         run ->
           expect(pipeline[name]()).toEqual(pipeline)
+
+  itAliases = (source,target)->
+    providesMethod(source)
+
+    describe "##{source}", ->
+      it "aliases ##{source} to ##{target.to}", ->
+        run ->
+          expect(pipeline[source]).toEqual(pipeline[target.to])
 
   itIsATransformation('any')
   itIsATransformation('anyBy')
@@ -61,11 +74,8 @@ describe 'Enumerology.Pipeline', ->
   itIsATransformation('uniq')
   itIsATransformation('without')
 
-  itAliases = (source,target)->
-    describe "##{source}", ->
-      it "aliases ##{source} to ##{target.to}", ->
-        run ->
-          expect(pipeline[source]).toEqual(pipeline[target.to])
+  providesMethod('sortNumerically')
+  providesMethod('sortNumericallyBy')
 
   itAliases('getEach',     to: 'mapBy')
   itAliases('mapProperty', to: 'mapBy')

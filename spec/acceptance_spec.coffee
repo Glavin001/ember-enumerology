@@ -6,10 +6,13 @@ describe 'Acceptance', ->
   beforeEach -> object = null
   afterEach  -> object = null
 
+  castMember = Em.Object.extend
+    nameLength: (-> @get('name.length') ).property('name')
+
   objectWithComputed = (func)->
     Em.Object.extend(
       characters: ['Marty', 'Doc', 'Jennifer', null]
-      cast: [Em.Object.create(name: 'Michael J. Fox'), Em.Object.create(name: 'Christopher Lloyd'), Em.Object.create(name: 'Claudia Wells')]
+      cast: [castMember.create(name: 'Michael J. Fox'), castMember.create(name: 'Christopher Lloyd'), castMember.create(name: 'Claudia Wells')]
       computed: func()
     ).create()
 
@@ -46,6 +49,8 @@ describe 'Acceptance', ->
   itCalculatesCorrectly 'setEach', (-> Enumerology.create('cast').setEach('name', 'Biff').filterBy('name', 'Biff').length().finalize()), 3
   itCalculatesCorrectly 'sort', (-> Enumerology.create('characters').compact().sort().finalize()), ['Doc', 'Jennifer', 'Marty']
   itCalculatesCorrectly 'sortBy', (-> Enumerology.create('cast').sortBy('name').mapBy('name').finalize()), [ 'Christopher Lloyd', 'Claudia Wells', 'Michael J. Fox' ]
+  itCalculatesCorrectly 'sortNumerically', (-> Enumerology.create('cast').mapProperty('nameLength').sortNumerically().finalize()), [ 13, 14, 17 ]
+  itCalculatesCorrectly 'sortNumericallyBy', (-> Enumerology.create('cast').sortNumericallyBy('nameLength').mapProperty('nameLength').finalize()), [ 13, 14, 17 ]
   itCalculatesCorrectly 'slice', (-> Enumerology.create('characters').slice(1,3).finalize()), ['Doc', 'Jennifer']
   itCalculatesCorrectly 'take', (-> Enumerology.create('characters').take(2).finalize()), ['Marty', 'Doc']
   itCalculatesCorrectly 'toSentence', (-> Enumerology.create('characters').compact().toSentence().finalize()), 'Marty, Doc and Jennifer'

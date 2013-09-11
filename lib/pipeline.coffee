@@ -5,6 +5,21 @@ classify = (name)->
 assert = (msg,test) ->
   throw new Error(msg) unless test
 
+lexigraphicCompare = (a,b)-> compare(a.toString(), b.toString())
+numericCompare = (a,b)-> compare(Number(a), Number(b))
+
+compare = (a,b)->
+  if a > b
+    1
+  else if a < b
+    -1
+  else
+    0
+
+addTransformation = (name, opts={})->
+  @get('transformations').addObject(Enumerology.Transform[classify(name)].create(opts))
+  @
+
 pipeline = Em.Object.extend
   init: ->
     @_super()
@@ -31,94 +46,97 @@ pipeline = Em.Object.extend
       result
 
   any: (callback)->
-    @_addTransformation('any', {callback: callback})
+    addTransformation.call(@, 'any', {callback: callback})
 
   anyBy: (key,value=null)->
-    @_addTransformation('anyBy', {key: key, value: value})
+    addTransformation.call(@, 'anyBy', {key: key, value: value})
 
   compact: ->
-    @_addTransformation('compact', {})
+    addTransformation.call(@, 'compact', {})
 
   contains: (obj)->
-    @_addTransformation('contains', {obj: obj})
+    addTransformation.call(@, 'contains', {obj: obj})
 
   every: (callback, target=null)->
-    @_addTransformation('every', {callback: callback, target: target})
+    addTransformation.call(@, 'every', {callback: callback, target: target})
 
   everyBy: (key, value=null)->
-    @_addTransformation('everyBy', {key: key, value: value})
+    addTransformation.call(@, 'everyBy', {key: key, value: value})
 
   filter: (callback, target=null)->
-    @_addTransformation('filter', {callback: callback, target: target})
+    addTransformation.call(@, 'filter', {callback: callback, target: target})
 
   filterBy: (key, value=null)->
-    @_addTransformation('filterBy', {key: key, value: value})
+    addTransformation.call(@, 'filterBy', {key: key, value: value})
 
   find: (callback, target=null)->
-    @_addTransformation('find', {callback: callback, target: target})
+    addTransformation.call(@, 'find', {callback: callback, target: target})
 
   findBy: (key, value=null)->
-    @_addTransformation('findBy', {key: key, value: value})
+    addTransformation.call(@, 'findBy', {key: key, value: value})
 
   first: ->
-    @_addTransformation('first')
+    addTransformation.call(@, 'first')
 
   invoke: (methodName, args...)->
-    @_addTransformation('invoke', {methodName: methodName, args: args})
+    addTransformation.call(@, 'invoke', {methodName: methodName, args: args})
 
   join: (separator=' ')->
-    @_addTransformation('join', {separator: separator})
+    addTransformation.call(@, 'join', {separator: separator})
 
   last: ->
-    @_addTransformation('last')
+    addTransformation.call(@, 'last')
 
   length: ->
-    @_addTransformation('length')
+    addTransformation.call(@, 'length')
 
   map: (callback, target=null)->
-    @_addTransformation('map', {callback: callback, target: target})
+    addTransformation.call(@, 'map', {callback: callback, target: target})
 
   mapBy: (key)->
-    @_addTransformation('mapBy', {key: key})
+    addTransformation.call(@, 'mapBy', {key: key})
 
   reduce: (callback, initialValue)->
-    @_addTransformation('reduce', {callback: callback, initialValue: initialValue})
+    addTransformation.call(@, 'reduce', {callback: callback, initialValue: initialValue})
 
   reject: (callback, target=null)->
-    @_addTransformation('reject', {callback: callback, target: target})
+    addTransformation.call(@, 'reject', {callback: callback, target: target})
 
   rejectBy: (key, value=null)->
-    @_addTransformation('rejectBy', {key: key, value: value})
+    addTransformation.call(@, 'rejectBy', {key: key, value: value})
 
   reverse: ->
-    @_addTransformation('reverse')
+    addTransformation.call(@, 'reverse')
 
   setEach: (key, value)->
-    @_addTransformation('setEach', {key: key, value: value})
+    addTransformation.call(@, 'setEach', {key: key, value: value})
 
   slice: (begin,end=null)->
-    @_addTransformation('slice', {begin: begin, end: end})
+    addTransformation.call(@, 'slice', {begin: begin, end: end})
 
   sort: (compareFunction=undefined)->
-    @_addTransformation('sort', {compareFunction: compareFunction})
+    addTransformation.call(@, 'sort', {compareFunction: compareFunction})
 
   sortBy: (key,compareFunction=undefined)->
-    @_addTransformation('sortBy', {key: key, compareFunction: compareFunction})
+    compareFunction = lexigraphicCompare if Em.isEmpty(compareFunction)
+    addTransformation.call(@, 'sortBy', {key: key, compareFunction: compareFunction})
+
+  sortNumerically: ->
+    addTransformation.call(@, 'sort', {compareFunction: numericCompare})
+
+  sortNumericallyBy: (key)->
+    addTransformation.call(@, 'sortBy', {key: key, compareFunction: numericCompare})
 
   take: (howMany)->
-    @_addTransformation('take', {howMany: howMany})
+    addTransformation.call(@, 'take', {howMany: howMany})
 
   toSentence: (conjunction='and', oxfordComma=false)->
-    @_addTransformation('toSentence', {conjunction: conjunction, oxfordComma: oxfordComma})
+    addTransformation.call(@, 'toSentence', {conjunction: conjunction, oxfordComma: oxfordComma})
 
   uniq: ->
-    @_addTransformation('uniq')
+    addTransformation.call(@, 'uniq')
 
   without: (value)->
-    @_addTransformation('without', {value: value})
-
-  _addTransformation: (name, opts={})->
-    @get('transformations').addObject(Enumerology.Transform[classify(name)].create(opts))
-    @
+    addTransformation.call(@, 'without', {value: value})
 
 Enumerology.Pipeline = pipeline
