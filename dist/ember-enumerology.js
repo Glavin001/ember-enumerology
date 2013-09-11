@@ -1,4 +1,4 @@
-/*! ember-enumerology - v0.1.0 - 2013-09-10
+/*! ember-enumerology - v0.2.0 - 2013-09-12
 * https://github.com/jamesotron/ember-enumerology
 * Copyright (c) 2013 James Harton; Licensed MIT */
 (function() {
@@ -8,7 +8,7 @@
 
 (function() {
   window.Enumerology = Em.Namespace.create({
-    VERSION: '0.1.0',
+    VERSION: '0.2.0',
     create: function(dependentKey) {
       return Enumerology.Pipeline.create({
         dependentKey: dependentKey
@@ -272,7 +272,7 @@
 
 (function() {
   Enumerology.Transform = Em.Object.extend({
-    dependencies: '[]'
+    dependencies: '.[]'
   });
 
 }).call(this);
