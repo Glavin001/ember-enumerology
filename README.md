@@ -186,7 +186,12 @@ see: [Array#slice](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refer
 
 see: [Array#sort](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort)
 
-note: Enumerology never mutates the original collection, so a new copy of the array is created before being passed into `sort`.
+notes:
+
+  - Enumerology never mutates the original collection, so a new copy of the array is created before being passed into `sort`.
+  - By default JavaScript sorts collections "lexigraphically", ie in alphabetical order (if no  `compareFunction` is provided).
+
+see also: `sortNumerically`
 
 ### `sortBy`
 
@@ -195,7 +200,14 @@ Sorts a collection of objects by the value of a named property.
 ##### Parameters
 
 - `key` - the property name to sort on.
-- `compareFunction` - a function to define a custome sort operation. See: [Array#sort](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort)
+- `compareFunction` - a function to define a custom sort operation. See: [Array#sort](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort)
+
+notes:
+
+  - Enumerology never mutates the original collection, so a new copy of the array is created before being passed into `sortBy`.
+  - By default JavaScript sorts collections "lexigraphically", ie in alphabetical order (if no `compareFunction` is provided).
+
+see also: `sortNumericallyBy`
 
 ### `sortNumerically`
 
@@ -225,8 +237,8 @@ Convert a collection of strings into a sentence.
 
 #### Parameters
 
-`conjunction` - The word to use to separate the last element of the list. Defaults to `'and'`.
-`oxfordComma` - Boolean. Whether or not to put a comma immediately before the conjunction. Defaults to `false`.
+- `conjunction` - The word to use to separate the last element of the list. Defaults to `'and'`.
+- `oxfordComma` - Boolean. Whether or not to put a comma immediately before the conjunction. Defaults to `false`.
 
 ### `uniq`
 
