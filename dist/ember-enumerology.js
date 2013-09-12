@@ -1,4 +1,4 @@
-/*! ember-enumerology - v0.2.2 - 2013-09-12
+/*! ember-enumerology - v0.2.3 - 2013-09-12
 * https://github.com/jamesotron/ember-enumerology
 * Copyright (c) 2013 James Harton; Licensed MIT */
 (function() {
@@ -8,7 +8,7 @@
 
 (function() {
   window.Enumerology = Em.Namespace.create({
-    VERSION: '0.2.2',
+    VERSION: '0.2.3',
     create: function(dependentKey) {
       return Enumerology.Pipeline.create({
         dependentKey: dependentKey
@@ -101,6 +101,11 @@
     },
     compact: function() {
       return addTransformation.call(this, 'compact', {});
+    },
+    compactBy: function(key) {
+      return addTransformation.call(this, 'compactBy', {
+        key: key
+      });
     },
     contains: function(obj) {
       return addTransformation.call(this, 'contains', {
@@ -362,6 +367,21 @@
   });
 
   Enumerology.Transform.Compact = compact;
+
+}).call(this);
+
+(function() {
+  var compactBy;
+
+  compactBy = Enumerology.TransformBy.extend({
+    apply: function(target, collection) {
+      return collection.map(function(i) {
+        return Em.isEmpty(i.get(this.get('key')));
+      }).compact();
+    }
+  });
+
+  Enumerology.Transform.CompactBy = compactBy;
 
 }).call(this);
 
