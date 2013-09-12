@@ -74,6 +74,14 @@ see: [Ember.Enumerable#anyBy](http://emberjs.com/api/classes/Ember.Enumerable.ht
 
 see: [Ember.Enumerable#compact](http://emberjs.com/api/classes/Ember.Enumerable.html#method_compact)
 
+#### `compactBy`
+
+Removes any elements where a named property is empty, `null` or `undefined`.
+
+##### Parameters
+
+- `key` - The name of the property to use for emptiness test.
+
 #### `contains`
 
 see: [Ember.Enumerable#contains](http://emberjs.com/api/classes/Ember.Enumerable.html#method_contains)

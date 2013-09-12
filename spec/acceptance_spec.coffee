@@ -28,6 +28,7 @@ describe 'Acceptance', ->
   itCalculatesCorrectly 'any', (-> Enumerology.create('characters').any((i)-> i == "Marty").finalize()), true
   itCalculatesCorrectly 'anyBy', (-> Enumerology.create('cast').anyBy('name', 'Michael J. Fox').finalize()), true
   itCalculatesCorrectly 'compact', (-> Enumerology.create('characters').compact().finalize()), ['Marty', 'Doc', 'Jennifer']
+  itCalculatesCorrectly 'compactBy', (-> Enumerology.create('cast').invoke((i)-> i.set('name',null)).compactBy('name').empty().finalize()), true
   itCalculatesCorrectly 'contains', (-> Enumerology.create('characters').contains('Marty').finalize()), true
   itCalculatesCorrectly 'empty', (-> Enumerology.create('nonExistantKey').empty().finalize()), true
   itCalculatesCorrectly 'empty', (-> Enumerology.create('characters').empty().finalize()), false

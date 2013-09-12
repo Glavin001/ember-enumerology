@@ -47,6 +47,7 @@ describe 'Enumerology.Pipeline', ->
   itIsATransformation('any')
   itIsATransformation('anyBy')
   itIsATransformation('compact')
+  itIsATransformation('compactBy')
   itIsATransformation('contains')
   itIsATransformation('empty')
   itIsATransformation('every')

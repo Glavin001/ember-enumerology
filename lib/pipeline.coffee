@@ -55,6 +55,9 @@ pipeline = Em.Object.extend
   compact: ->
     addTransformation.call(@, 'compact', {})
 
+  compactBy: (key)->
+    addTransformation.call(@, 'compactBy', {key: key})
+
   contains: (obj)->
     addTransformation.call(@, 'contains', {obj: obj})
 
