@@ -32,6 +32,8 @@ describe 'Acceptance', ->
   itCalculatesCorrectly 'contains', (-> Enumerology.create('characters').contains('Marty').finalize()), true
   itCalculatesCorrectly 'empty', (-> Enumerology.create('nonExistantKey').empty().finalize()), true
   itCalculatesCorrectly 'empty', (-> Enumerology.create('characters').empty().finalize()), false
+  itCalculatesCorrectly 'emptyBy', (-> Enumerology.create('cast').emptyBy('foo').finalize()), true
+  itCalculatesCorrectly 'emptyBy', (-> Enumerology.create('cast').emptyBy('name').finalize()), false
   itCalculatesCorrectly 'every', (-> Enumerology.create('characters').compact().every((i)-> i.length > 2).finalize()), true
   itCalculatesCorrectly 'everyBy', (-> Enumerology.create('cast').everyBy('name', 'Michael J. Fox').finalize()), false
   itCalculatesCorrectly 'filter', (-> Enumerology.create('characters').filter((i)-> i == 'Marty').finalize()), ['Marty']
@@ -47,6 +49,8 @@ describe 'Acceptance', ->
   itCalculatesCorrectly 'mapBy', (-> Enumerology.create('cast').compact().mapBy('name').finalize()), ['Michael J. Fox', 'Christopher Lloyd', 'Claudia Wells']
   itCalculatesCorrectly 'nonEmpty', (-> Enumerology.create('characters').nonEmpty().finalize()), true
   itCalculatesCorrectly 'nonEmpty', (-> Enumerology.create('nonExistantKey').nonEmpty().finalize()), false
+  itCalculatesCorrectly 'nonEmptyBy', (-> Enumerology.create('cast').nonEmptyBy('name').finalize()), true
+  itCalculatesCorrectly 'nonEmptyBy', (-> Enumerology.create('cast').nonEmptyBy('foo').finalize()), false
   itCalculatesCorrectly 'reduce', (-> Enumerology.create('characters').compact().reduce(((sum,i)-> sum += i.length), 0).finalize()), 16
   itCalculatesCorrectly 'reject', (-> Enumerology.create('characters').reject((i)-> i == null).length().finalize()), 3
   itCalculatesCorrectly 'rejectBy', (-> Enumerology.create('cast').rejectBy('name', 'Christopher Lloyd').length().finalize()), 2

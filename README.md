@@ -88,7 +88,15 @@ see: [Ember.Enumerable#contains](http://emberjs.com/api/classes/Ember.Enumerable
 
 #### `empty`
 
-Returns true of the collection contains zero elements.
+Returns true if the collection contains zero elements.
+
+#### `emptyBy`
+
+Shorthand for `compactBy(key).empty()`
+
+##### Parameters
+
+- `key` - The name of the property to filter on.
 
 #### `every`
 
@@ -126,6 +134,10 @@ see: [Ember.Enumerable#invoke](http://emberjs.com/api/classes/Ember.Enumerable.h
 
 alias for `empty`
 
+#### `isEmptyBy`
+
+alias for `emptyBy`
+
 #### `join`
 
 Join a collection of strings with a given separator.
@@ -153,6 +165,14 @@ see: [Ember.Enumerable#mapBy](http://emberjs.com/api/classes/Ember.Enumerable.ht
 #### `nonEmpty`
 
 Returns true of the collection has one or more elements in it.
+
+#### `nonEmptyBy`
+
+Shorthand for `compactBy(key).nonEmpty()`
+
+##### Parameters
+
+- `key` - The name of the property to filter on.
 
 #### `reduce`
 
