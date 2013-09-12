@@ -38,7 +38,7 @@ pipeline = Em.Object.extend
     dependentKeys   = transformations.map((item)-> "#{baseKey}#{item.get('dependencies')}").uniq()
 
     Ember.computed dependentKeys..., ->
-      result = @get(baseKey)
+      result = @getWithDefault(baseKey,[])
 
       transformations.forEach (transform)->
         result = transform.apply(@,result)
