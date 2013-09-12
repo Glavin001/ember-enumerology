@@ -48,6 +48,7 @@ describe 'Enumerology.Pipeline', ->
   itIsATransformation('anyBy')
   itIsATransformation('compact')
   itIsATransformation('contains')
+  itIsATransformation('empty')
   itIsATransformation('every')
   itIsATransformation('everyBy')
   itIsATransformation('filter')
@@ -61,6 +62,7 @@ describe 'Enumerology.Pipeline', ->
   itIsATransformation('length')
   itIsATransformation('map')
   itIsATransformation('mapBy')
+  itIsATransformation('nonEmpty')
   itIsATransformation('reduce')
   itIsATransformation('reject')
   itIsATransformation('rejectBy')
@@ -78,6 +80,7 @@ describe 'Enumerology.Pipeline', ->
   providesMethod('sortNumericallyBy')
 
   itAliases('getEach',     to: 'mapBy')
+  itAliases('isEmpty',     to: 'empty')
   itAliases('mapProperty', to: 'mapBy')
   itAliases('size',        to: 'length')
 

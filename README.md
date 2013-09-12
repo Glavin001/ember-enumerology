@@ -78,6 +78,10 @@ see: [Ember.Enumerable#compact](http://emberjs.com/api/classes/Ember.Enumerable.
 
 see: [Ember.Enumerable#contains](http://emberjs.com/api/classes/Ember.Enumerable.html#method_contains)
 
+#### `empty`
+
+Returns true of the collection contains zero elements.
+
 #### `every`
 
 see: [Ember.Enumerable#every](http://emberjs.com/api/classes/Ember.Enumerable.html#method_every)
@@ -110,6 +114,10 @@ Returns the first element of the collection.
 
 see: [Ember.Enumerable#invoke](http://emberjs.com/api/classes/Ember.Enumerable.html#method_invoke)
 
+#### `isEmpty`
+
+alias for `empty`
+
 #### `join`
 
 Join a collection of strings with a given separator.
@@ -133,6 +141,10 @@ see: [Ember.Enumerable#map](http://emberjs.com/api/classes/Ember.Enumerable.html
 #### `mapBy`
 
 see: [Ember.Enumerable#mapBy](http://emberjs.com/api/classes/Ember.Enumerable.html#method_mapBy)
+
+#### `nonEmpty`
+
+Returns true of the collection has one or more elements in it.
 
 #### `reduce`
 

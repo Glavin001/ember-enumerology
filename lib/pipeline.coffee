@@ -25,6 +25,7 @@ pipeline = Em.Object.extend
     @_super()
     @['getEach']     = @['mapBy']
     @['mapProperty'] = @['mapBy']
+    @['isEmpty']     = @['empty']
     @['size']        = @['length']
     @set('transformations', [])
 
@@ -56,6 +57,9 @@ pipeline = Em.Object.extend
 
   contains: (obj)->
     addTransformation.call(@, 'contains', {obj: obj})
+
+  empty: ->
+    addTransformation.call(@, 'empty')
 
   every: (callback, target=null)->
     addTransformation.call(@, 'every', {callback: callback, target: target})
@@ -95,6 +99,9 @@ pipeline = Em.Object.extend
 
   mapBy: (key)->
     addTransformation.call(@, 'mapBy', {key: key})
+
+  nonEmpty: ->
+    addTransformation.call(@, 'nonEmpty')
 
   reduce: (callback, initialValue)->
     addTransformation.call(@, 'reduce', {callback: callback, initialValue: initialValue})
