@@ -1,4 +1,4 @@
-/*! ember-enumerology - v0.2.1 - 2013-09-12
+/*! ember-enumerology - v0.2.2 - 2013-09-12
 * https://github.com/jamesotron/ember-enumerology
 * Copyright (c) 2013 James Harton; Licensed MIT */
 (function() {
@@ -8,7 +8,7 @@
 
 (function() {
   window.Enumerology = Em.Namespace.create({
-    VERSION: '0.2.1',
+    VERSION: '0.2.2',
     create: function(dependentKey) {
       return Enumerology.Pipeline.create({
         dependentKey: dependentKey
@@ -63,6 +63,7 @@
       this._super();
       this['getEach'] = this['mapBy'];
       this['mapProperty'] = this['mapBy'];
+      this['isEmpty'] = this['empty'];
       this['size'] = this['length'];
       return this.set('transformations', []);
     },
@@ -77,7 +78,7 @@
       }).uniq();
       return Ember.computed.apply(Ember, __slice.call(dependentKeys).concat([function() {
         var result;
-        result = this.get(baseKey);
+        result = this.getWithDefault(baseKey, []);
         transformations.forEach(function(transform) {
           return result = transform.apply(this, result);
         });
@@ -105,6 +106,9 @@
       return addTransformation.call(this, 'contains', {
         obj: obj
       });
+    },
+    empty: function() {
+      return addTransformation.call(this, 'empty');
     },
     every: function(callback, target) {
       if (target == null) {
@@ -198,6 +202,9 @@
       return addTransformation.call(this, 'mapBy', {
         key: key
       });
+    },
+    nonEmpty: function() {
+      return addTransformation.call(this, 'nonEmpty');
     },
     reduce: function(callback, initialValue) {
       return addTransformation.call(this, 'reduce', {
@@ -372,6 +379,19 @@
 }).call(this);
 
 (function() {
+  var empty;
+
+  empty = Enumerology.Transform.extend({
+    apply: function(target, collection) {
+      return collection.get('length') === 0;
+    }
+  });
+
+  Enumerology.Transform.Empty = empty;
+
+}).call(this);
+
+(function() {
   var every;
 
   every = Enumerology.Transform.extend({
@@ -538,6 +558,19 @@
   });
 
   Enumerology.Transform.MapBy = mapBy;
+
+}).call(this);
+
+(function() {
+  var nonEmpty;
+
+  nonEmpty = Enumerology.Transform.extend({
+    apply: function(target, collection) {
+      return collection.get('length') > 0;
+    }
+  });
+
+  Enumerology.Transform.NonEmpty = nonEmpty;
 
 }).call(this);
 
