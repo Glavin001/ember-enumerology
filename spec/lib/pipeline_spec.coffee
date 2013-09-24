@@ -2,22 +2,26 @@ run = Ember.run
 classify = (name)->
   name.charAt(0).toUpperCase() + name.slice(1)
 
-# describe 'Enumerology.Pipeline', ->
-#   pipeline = null
+describe 'Enumerology.Pipeline', ->
+  pipeline = null
 
-#   beforeEach ->
-#     pipeline = Enumerology.Pipeline.create()
+  beforeEach ->
+    pipeline = Enumerology.Pipeline.create()
 
-#   afterEach ->
-#     pipeline = null
+  afterEach ->
+    pipeline = null
 
-#   it 'exists', ->
-#     expect(Enumerology.Pipeline).toBeDefined()
+  it 'exists', ->
+    expect(Enumerology.Pipeline).toBeDefined()
 
-#   describe '#init', ->
-#     it 'has no transformations', ->
-#       run ->
-#         expect(pipeline.get('transformations')).toEqual([])
+  describe '#init', ->
+    it 'has no transformations', ->
+      run ->
+        expect(pipeline.get('transformations')).toEqual([])
+
+  describe 'when appending transformations', ->
+    it 'raises exceptions if adding a filter after a reduce', ->
+      expect(-> pipeline.any().filter()).toThrow()
 
 #   providesMethod = (name)->
 #     it "responds to ##{name}", ->

@@ -1,4 +1,4 @@
-any = Enumerology.Transform.extend
+any = Enumerology.Transform.extend Enumerology.Reduce,
   trueCount: 0
   value: Ember.computed.gt('trueCount', 0)
 

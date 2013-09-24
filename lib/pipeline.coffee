@@ -17,7 +17,12 @@ compare = (a,b)->
     0
 
 addTransformation = (name, opts={})->
-  @get('transformations').addObject(Enumerology.Transform[classify(name)].create(opts))
+  newTransform = Enumerology.Transform[classify(name)].create(opts)
+
+  if @get("transformations.length") > 0
+    assert "Cannot add any further operations after a reduce operation", @get('transformations.lastObject.isFilter')
+
+  @get('transformations').addObject(newTransform)
   @
 
 pipeline = Em.Object.extend

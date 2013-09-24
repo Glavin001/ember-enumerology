@@ -365,6 +365,28 @@
 }).call(this);
 
 (function() {
+  describe('Enumerology.Filter', function() {
+    it('exists', function() {
+      return expect(Enumerology.Filter).toBeDefined();
+    });
+    describe('#initialValue', function() {
+      return expect(Em.Object.createWithMixins(Enumerology.Filter).get('initialValue')).toEqual([]);
+    });
+    describe('#isReduce', function() {
+      return it('is true', function() {
+        return expect(Em.Object.createWithMixins(Enumerology.Filter).get('isReduce')).toBe(false);
+      });
+    });
+    return describe('#isFilter', function() {
+      return it('is false', function() {
+        return expect(Em.Object.createWithMixins(Enumerology.Filter).get('isFilter')).toBe(true);
+      });
+    });
+  });
+
+}).call(this);
+
+(function() {
   var classify, run;
 
   run = Ember.run;
@@ -372,6 +394,53 @@
   classify = function(name) {
     return name.charAt(0).toUpperCase() + name.slice(1);
   };
+
+  describe('Enumerology.Pipeline', function() {
+    var pipeline;
+    pipeline = null;
+    beforeEach(function() {
+      return pipeline = Enumerology.Pipeline.create();
+    });
+    afterEach(function() {
+      return pipeline = null;
+    });
+    it('exists', function() {
+      return expect(Enumerology.Pipeline).toBeDefined();
+    });
+    describe('#init', function() {
+      return it('has no transformations', function() {
+        return run(function() {
+          return expect(pipeline.get('transformations')).toEqual([]);
+        });
+      });
+    });
+    return describe('when appending transformations', function() {
+      return it('raises exceptions if adding a filter after a reduce', function() {
+        return expect(function() {
+          return pipeline.any().filter();
+        }).toThrow();
+      });
+    });
+  });
+
+}).call(this);
+
+(function() {
+  describe('Enumerology.Reduce', function() {
+    it('exists', function() {
+      return expect(Enumerology.Reduce).toBeDefined();
+    });
+    describe('#isReduce', function() {
+      return it('is true', function() {
+        return expect(Em.Object.createWithMixins(Enumerology.Reduce).get('isReduce')).toBe(true);
+      });
+    });
+    return describe('#isFilter', function() {
+      return it('is false', function() {
+        return expect(Em.Object.createWithMixins(Enumerology.Reduce).get('isFilter')).toBe(false);
+      });
+    });
+  });
 
 }).call(this);
 

@@ -1,4 +1,4 @@
-filter = Enumerology.Transform.extend
+filter = Enumerology.Transform.extend Enumerology.Filter,
   subArray: undefined
   initialValue: undefined
 
