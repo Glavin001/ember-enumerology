@@ -1,5 +1,6 @@
 /node_modules/
 lib/**/*.js
+lib/ember
 spec/**/*.js
 bower_components/*
 _SpecRunner.html
