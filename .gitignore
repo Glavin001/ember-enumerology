@@ -3,3 +3,4 @@ lib/**/*.js
 spec/**/*.js
 bower_components/*
 _SpecRunner.html
+/.grunt

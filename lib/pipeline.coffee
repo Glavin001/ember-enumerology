@@ -37,15 +37,54 @@ pipeline = Em.Object.extend
     transformations = @get('transformations')
     assert "Must have at least one transformation applied", transformations.get('length') > 0
 
-    dependentKeys   = transformations.map((item)-> "#{baseKey}#{item.get('dependencies')}").uniq()
+    lastTransformation = transformations.get('lastObject')
 
-    Ember.computed dependentKeys..., ->
-      result = @getWithDefault(baseKey,[])
+    dependentKeys   = transformations.map((item)->
+      dependencies = item.get('dependencies')
+      "#{baseKey}#{dependencies}" unless Em.isEmpty(dependencies)
+    ).compact().uniq()
 
-      transformations.forEach (transform)->
-        result = transform.apply(@,result)
+    Ember.reduceComputed baseKey, dependentKeys...,
+      initialValue: lastTransformation.get('initialValue')
+      initialize: (initialValue, changeMeta, instanceMeta)->
+        instanceMeta.transformationAccumulators = new Array(transformations.get('length'))
+        transformations.forEach (transformation, index)->
+          instanceMeta.transformationAccumulators[index] = transformation.get('initialValue')
 
-      result
+      addedItem: (accumulator, item, changeMeta, instanceMeta)->
+        context = changeMeta
+        context.binding = this
+        returnValue = accumulator
+
+        transformations.forEach (transformation, index)->
+          accumulatedValue = instanceMeta.transformationAccumulators[index]
+          returnValue = transformation.addedItem accumulatedValue, item, context
+          # TODO: update context
+          # TODO: think about accumulatedValue when it changes
+
+        returnValue
+
+      removedItem: (accumulator, item, changeMeta, instanceMeta)->
+        context = changeMeta
+        context.binding = this
+        returnValue = accumulator
+
+        transformations.forEach (transformation, index)->
+          accumulatedValue = instanceMeta.transformationAccumulators[index]
+          returnValue = transformation.removedItem accumulatedValue, item, context
+          # TODO: update context
+          # TODO: think about accumulatedValue when it changes
+
+        returnValue
+      
+
+    # Ember.computed dependentKeys..., ->
+    #   result = @getWithDefault(baseKey,[])
+
+    #   transformations.forEach (transform)->
+    #     result = transform.apply(@,result)
+
+    #   result
 
   any: (callback)->
     addTransformation.call(@, 'any', {callback: callback})

@@ -49,6 +49,7 @@ module.exports = function(grunt) {
         options: {
           specs: 'spec/*_spec.js',
           helpers: 'spec/*_helper.js',
+          keepRunner: true,
           vendor: [
             'bower_components/jquery/jquery.js',
             'bower_components/handlebars/handlebars.js',
