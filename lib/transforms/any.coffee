@@ -14,7 +14,4 @@ any = Enumerology.Transform.extend
     @decrementProperty('trueCount') if callback.call(context.binding, item)
     return @get('value')
 
-  # apply: (target, collection)->
-  #   collection.any(@get('callback'), @getWithDefault('target', target))
-
 Enumerology.Transform.Any = any
