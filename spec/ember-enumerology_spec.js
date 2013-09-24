@@ -96,7 +96,7 @@
   run = Em.run;
 
   describe('acceptance', function() {
-    return describe('filter', function() {
+    describe('filter', function() {
       var object;
       object = void 0;
       beforeEach(function() {
@@ -193,6 +193,62 @@
           return it('has the corresponding matching item removed', function() {
             return expect(object.get('filteredCollection')).toEqual(['A', 'B', 'A']);
           });
+        });
+      });
+    });
+    return describe('an enumerology of two filters', function() {
+      var object;
+      object = void 0;
+      beforeEach(function() {
+        return run(function() {
+          var isUpperCase, isVowel;
+          isUpperCase = function(item) {
+            return item.toUpperCase() === item;
+          };
+          isVowel = function(item) {
+            return /[aeiuo]/i.test(item);
+          };
+          object = Em.Object.createWithMixins({
+            collection: Em.A(),
+            filteredCollection: Enumerology.create('collection').filter(isUpperCase).filter(isVowel).finalize()
+          });
+          return object.get('filteredCollection');
+        });
+      });
+      describe('when the dependent array is empty', function() {
+        return it('is empty', function() {
+          return expect(object.get('filteredCollection')).toEqual([]);
+        });
+      });
+      describe('when a partially matching item is added', function() {
+        beforeEach(function() {
+          return run(function() {
+            return object.get('collection').pushObjects(['Q', 'e']);
+          });
+        });
+        return it('is not added to the array', function() {
+          return expect(object.get('filteredCollection')).toEqual([]);
+        });
+      });
+      describe('when a fully matching item is added', function() {
+        beforeEach(function() {
+          return run(function() {
+            return object.get('collection').pushObject('E');
+          });
+        });
+        return it('is added to the array', function() {
+          return expect(object.get('filteredCollection')).toEqual(['E']);
+        });
+      });
+      return describe('when the dependent array contains a mix of fully matching, partially matching and non-matching items', function() {
+        beforeEach(function() {
+          return run(function() {
+            object.get('collection').pushObjects(['a', 'q', 'E', 'Z', 'b', 'U']);
+            return expect(object.get('filteredCollection')).toEqual(['E', 'U']);
+          });
+        });
+        return describe('and a fully matching item is added', function() {
+          return it('is added the the array, preserving order', function() {});
         });
       });
     });

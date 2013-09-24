@@ -56,6 +56,12 @@ pipeline = Em.Object.extend
         context.binding = this
         returnValue = accumulator
 
+        # TODO: compute transformations
+
+
+        # operations = [I(item)]
+        # forEach transformation
+        #   operations = apply each operation
         transformations.forEach (transformation, index)->
           accumulatedValue = instanceMeta.transformationAccumulators[index]
           returnValue = transformation.addedItem accumulatedValue, item, context

@@ -79,3 +79,47 @@ describe 'acceptance', ->
 
         it 'has the corresponding matching item removed', ->
           expect(object.get('filteredCollection')).toEqual(['A', 'B', 'A'])
+
+  describe 'an enumerology of two filters', ->
+    object = undefined
+
+    beforeEach ->
+      run ->
+        isUpperCase = (item)-> item.toUpperCase() == item
+        isVowel = (item) -> /[aeiuo]/i.test(item)
+
+        object = Em.Object.createWithMixins
+          collection: Em.A()
+          filteredCollection: Enumerology.create('collection').filter(isUpperCase).filter(isVowel).finalize()
+        # Force computed property to be created
+        object.get('filteredCollection')
+
+    describe 'when the dependent array is empty', ->
+      it 'is empty', ->
+        expect(object.get('filteredCollection')).toEqual([])
+
+    describe 'when a partially matching item is added', ->
+      beforeEach ->
+        run ->
+          object.get('collection').pushObjects(['Q', 'e'])
+
+      it 'is not added to the array', ->
+        expect(object.get('filteredCollection')).toEqual([])
+
+    describe 'when a fully matching item is added', ->
+      beforeEach ->
+        run ->
+          object.get('collection').pushObject('E')
+
+      it 'is added to the array', ->
+        expect(object.get('filteredCollection')).toEqual(['E'])
+
+    describe 'when the dependent array contains a mix of fully matching, partially matching and non-matching items', ->
+      beforeEach ->
+        run ->
+          object.get('collection').pushObjects(['a', 'q', 'E', 'Z', 'b', 'U'])
+          expect(object.get('filteredCollection')).toEqual(['E', 'U'])
+
+      describe 'and a fully matching item is added', ->
+        it 'is added the the array, preserving order', ->
+
