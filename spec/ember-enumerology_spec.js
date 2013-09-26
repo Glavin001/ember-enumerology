@@ -365,21 +365,21 @@
 }).call(this);
 
 (function() {
-  describe('Enumerology.Filter', function() {
+  describe('Enumerology.FilterMixin', function() {
     it('exists', function() {
-      return expect(Enumerology.Filter).toBeDefined();
+      return expect(Enumerology.FilterMixin).toBeDefined();
     });
     describe('#initialValue', function() {
-      return expect(Em.Object.createWithMixins(Enumerology.Filter).get('initialValue')).toEqual([]);
+      return expect(Em.Object.createWithMixins(Enumerology.FilterMixin).get('initialValue')).toEqual([]);
     });
     describe('#isReduce', function() {
       return it('is true', function() {
-        return expect(Em.Object.createWithMixins(Enumerology.Filter).get('isReduce')).toBe(false);
+        return expect(Em.Object.createWithMixins(Enumerology.FilterMixin).get('isReduce')).toBe(false);
       });
     });
     return describe('#isFilter', function() {
       return it('is false', function() {
-        return expect(Em.Object.createWithMixins(Enumerology.Filter).get('isFilter')).toBe(true);
+        return expect(Em.Object.createWithMixins(Enumerology.FilterMixin).get('isFilter')).toBe(true);
       });
     });
   });
@@ -426,18 +426,18 @@
 }).call(this);
 
 (function() {
-  describe('Enumerology.Reduce', function() {
+  describe('Enumerology.ReduceMixin', function() {
     it('exists', function() {
-      return expect(Enumerology.Reduce).toBeDefined();
+      return expect(Enumerology.ReduceMixin).toBeDefined();
     });
     describe('#isReduce', function() {
       return it('is true', function() {
-        return expect(Em.Object.createWithMixins(Enumerology.Reduce).get('isReduce')).toBe(true);
+        return expect(Em.Object.createWithMixins(Enumerology.ReduceMixin).get('isReduce')).toBe(true);
       });
     });
     return describe('#isFilter', function() {
       return it('is false', function() {
-        return expect(Em.Object.createWithMixins(Enumerology.Reduce).get('isFilter')).toBe(false);
+        return expect(Em.Object.createWithMixins(Enumerology.ReduceMixin).get('isFilter')).toBe(false);
       });
     });
   });

@@ -1,4 +1,4 @@
-Enumerology.Filter = Em.Mixin.create
+Enumerology.FilterMixin = Em.Mixin.create
   initialValue: []
   isReduce: false
   isFilter: true

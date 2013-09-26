@@ -1,4 +1,4 @@
-any = Enumerology.Transform.extend Enumerology.Reduce,
+any = Enumerology.Transform.extend Enumerology.ReduceMixin,
   trueCount: 0
   value: Ember.computed.gt('trueCount', 0)
 
