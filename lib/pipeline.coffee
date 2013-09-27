@@ -18,6 +18,7 @@ compare = (a,b)->
 
 addTransformation = (name, opts={})->
   newTransform = Enumerology.Transform[classify(name)].create(opts)
+  newTransform.set('pipepine', @)
 
   if @get("transformations.length") > 0
     assert "Cannot add any further operations after a reduce operation", @get('transformations.lastObject.isFilter')
@@ -33,7 +34,7 @@ pipeline = Em.Object.extend
     @['isEmpty']     = @['empty']
     @['isEmptyBy']   = @['emptyBy']
     @['size']        = @['length']
-    @set('transformations', [])
+    @set('transformations', Em.A())
 
   finalize: ->
     baseKey         = @get('dependentKey')
@@ -49,53 +50,19 @@ pipeline = Em.Object.extend
       "#{baseKey}#{dependencies}" unless Em.isEmpty(dependencies)
     ).compact().uniq()
 
-    Ember.reduceComputed baseKey, dependentKeys...,
-      initialValue: lastTransformation.get('initialValue')
-      initialize: (initialValue, changeMeta, instanceMeta)->
-        instanceMeta.transformationAccumulators = new Array(transformations.get('length'))
-        transformations.forEach (transformation, index)->
-          instanceMeta.transformationAccumulators[index] = transformation.get('initialValue')
+    pipeline = @
 
-      addedItem: (accumulator, item, changeMeta, instanceMeta)->
-        context = changeMeta
-        context.binding = this
-        returnValue = accumulator
+    Em.computed dependentKeys..., ->
+      key    = "_target.#{baseKey}"
+      target = @
+      pipeline.set('_target', target)
 
-        # TODO: compute transformations
+      transformations.forEach (transform, i)->
+        computed = transform.apply(key, target)
+        key = "_transform_#{i}_result"
+        Em.defineProperty(pipeline, key, computed)
 
-
-        # operations = [I(item)]
-        # forEach transformation
-        #   operations = apply each operation
-        transformations.forEach (transformation, index)->
-          accumulatedValue = instanceMeta.transformationAccumulators[index]
-          returnValue = transformation.addedItem accumulatedValue, item, context
-          # TODO: update context
-          # TODO: think about accumulatedValue when it changes
-
-        returnValue
-
-      removedItem: (accumulator, item, changeMeta, instanceMeta)->
-        context = changeMeta
-        context.binding = this
-        returnValue = accumulator
-
-        transformations.forEach (transformation, index)->
-          accumulatedValue = instanceMeta.transformationAccumulators[index]
-          returnValue = transformation.removedItem accumulatedValue, item, context
-          # TODO: update context
-          # TODO: think about accumulatedValue when it changes
-
-        returnValue
-      
-
-    # Ember.computed dependentKeys..., ->
-    #   result = @getWithDefault(baseKey,[])
-
-    #   transformations.forEach (transform)->
-    #     result = transform.apply(@,result)
-
-    #   result
+      pipeline.getWithDefault(key, lastTransformation.get('initialValue'))
 
   any: (callback)->
     addTransformation.call(@, 'any', {callback: callback})
