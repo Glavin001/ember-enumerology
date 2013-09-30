@@ -50,19 +50,18 @@ pipeline = Em.Object.extend
       "#{baseKey}#{dependencies}" unless Em.isEmpty(dependencies)
     ).compact().uniq()
 
-    pipeline = @
-
     Em.computed dependentKeys..., ->
       key    = "_target.#{baseKey}"
       target = @
-      pipeline.set('_target', target)
+      metaProperties = Em.Object.create()
+      metaProperties.set('_target', target)
 
       transformations.forEach (transform, i)->
         computed = transform.apply(key, target)
-        key = "_transform_#{i}_result"
-        Em.defineProperty(pipeline, key, computed)
+        key      = "_transform_#{i}_result"
+        Em.defineProperty(metaProperties, key, computed)
 
-      pipeline.getWithDefault(key, lastTransformation.get('initialValue'))
+      metaProperties.getWithDefault(key, lastTransformation.get('initialValue'))
 
   any: (callback)->
     addTransformation.call(@, 'any', {callback: callback})

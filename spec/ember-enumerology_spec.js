@@ -3,7 +3,7 @@
 
   run = Em.run;
 
-  describe('Acceptance', function() {
+  xdescribe('Acceptance', function() {
     return describe('any', function() {
       var callbackCalls, object;
       object = void 0;
