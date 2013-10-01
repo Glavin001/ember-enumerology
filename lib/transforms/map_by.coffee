@@ -1,5 +1,11 @@
-mapBy = Enumerology.TransformBy.extend
-  apply: (target, collection)->
-    collection.mapBy(@get('key'))
+mapBy = Enumerology.TransformBy.extend Enumerology.FilterMixin,
+  addedItem: (array, item, context)->
+    key = @get('key')
+    array.insertAt context.index, item.get(key)
+    array
+
+  removedItem: (array, item, context)->
+    array.removeAt context.index
+    array
 
 Enumerology.Transform.MapBy = mapBy
