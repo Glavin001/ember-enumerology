@@ -1,6 +1,6 @@
 run = Em.run
 
-describe 'acceptance', ->
+describe 'Acceptance', ->
   describe 'filter', ->
     object = undefined
 
@@ -13,8 +13,8 @@ describe 'acceptance', ->
         object.get('filteredCollection')
 
     describe 'when the dependent array is empty', ->
-      it 'has length zero', ->
-        expect(object.get('filteredCollection.length')).toEqual(0)
+      it 'is empty', ->
+        expect(object.get('filteredCollection')).toEqual(Em.A())
 
     describe 'when a matching item is appended to the dependent array', ->
       beforeEach ->
