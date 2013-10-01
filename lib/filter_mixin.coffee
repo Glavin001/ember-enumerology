@@ -14,12 +14,12 @@ Enumerology.FilterMixin = Em.Mixin.create
 
     Em.arrayComputed dependency,
       initialValue: initialValue
-      initialize: (initialValue, changeMeta, instanceMeta)->
+      initialize:   (initialValue, changeMeta, instanceMeta)->
         changeMeta.binding = target
 
-      addedItem: (accumulator, item, changeMeta, instanceMeta)=>
+      addedItem:    (accumulator, item, changeMeta, instanceMeta)=>
         @addedItem.call(@, accumulator, item, changeMeta)
 
-      removedItem: (accumulator, item, changeMeta, instanceMeta)=>
+      removedItem:  (accumulator, item, changeMeta, instanceMeta)=>
         @removedItem.call(@, accumulator, item, changeMeta)
 
