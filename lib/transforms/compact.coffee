@@ -1,5 +1,4 @@
-compact = Enumerology.Transform.extend
-  apply: (target, collection)->
-    collection.compact()
+compact = Enumerology.Transform.Filter.extend
+  callback: (item)-> item?
 
 Enumerology.Transform.Compact = compact
