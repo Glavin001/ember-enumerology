@@ -1,6 +1,6 @@
 any = Enumerology.Transform.extend Enumerology.ReduceMixin,
-  trueCount: 0
-  value: Ember.computed.gt('trueCount', 0)
+  trueCount:    0
+  value:        Em.computed.gt('trueCount', 0)
   initialValue: false
 
   addedItem: (accumulatedValue, item, context)->

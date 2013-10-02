@@ -1,6 +1,6 @@
 run = Em.run
 
-xdescribe 'Acceptance', ->
+describe 'Acceptance', ->
   describe 'any', ->
     object = undefined
     callbackCalls = undefined
