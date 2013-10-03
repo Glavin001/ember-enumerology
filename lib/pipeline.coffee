@@ -18,7 +18,7 @@ compare = (a,b)->
 
 addTransformation = (name, opts={})->
   newTransform = Enumerology.Transform[classify(name)].create(opts)
-  newTransform.set('pipepine', @)
+  newTransform.set('pipeline', @)
 
   if @get("transformations.length") > 0
     assert "Cannot add any further operations after a reduce operation", @get('transformations.lastObject.isFilter')
@@ -34,6 +34,7 @@ pipeline = Em.Object.extend
     @['isEmpty']     = @['empty']
     @['isEmptyBy']   = @['emptyBy']
     @['size']        = @['length']
+    @['tee']         = @['invoke']
     @set('transformations', Em.A())
 
   finalize: ->
@@ -50,6 +51,9 @@ pipeline = Em.Object.extend
       "#{baseKey}#{dependencies}" unless Em.isEmpty(dependencies)
     ).compact().uniq()
 
+    initialValue = lastTransformation.get('initialValue')
+    initialValue = initialValue() if typeof initialValue == 'function'
+
     Em.computed dependentKeys..., ->
       key    = "_target.#{baseKey}"
       target = @
@@ -61,7 +65,7 @@ pipeline = Em.Object.extend
         key      = "_transform_#{i}_result"
         Em.defineProperty(metaProperties, key, computed)
 
-      metaProperties.getWithDefault(key, lastTransformation.get('initialValue'))
+      metaProperties.getWithDefault(key, initialValue)
 
   any: (callback)->
     addTransformation.call(@, 'any', {callback: callback})
@@ -108,7 +112,7 @@ pipeline = Em.Object.extend
   invoke: (methodName, args...)->
     addTransformation.call(@, 'invoke', {methodName: methodName, args: args})
 
-  join: (separator=' ')->
+  join: (separator=undefined)->
     addTransformation.call(@, 'join', {separator: separator})
 
   last: ->

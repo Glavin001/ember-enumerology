@@ -1,4 +1,4 @@
-sort = Enumerology.Transform.extend
+sort = Enumerology.FilterBy.extend
   apply: (target, collection)->
     compareFunction = @get('compareFunction')
     if Em.isEmpty(compareFunction)

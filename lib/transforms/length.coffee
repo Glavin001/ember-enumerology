@@ -1,4 +1,4 @@
-length = Enumerology.Transform.extend
+length = Enumerology.Reduce.extend
   apply: (target, collection)->
     collection.get('length')
 

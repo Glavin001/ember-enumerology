@@ -1,4 +1,4 @@
-take = Enumerology.Transform.extend
+take = Enumerology.Filter.extend
   apply: (target, collection)->
     collection.slice(0,@get('howMany'))
 

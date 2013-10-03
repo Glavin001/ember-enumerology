@@ -1,4 +1,4 @@
-reduce = Enumerology.Transform.extend
+reduce = Enumerology.Reduce.extend
   apply: (target, collection)->
     collection.reduce(@get('callback'), @get('initialValue'))
 

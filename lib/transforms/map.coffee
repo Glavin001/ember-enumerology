@@ -1,4 +1,4 @@
-map = Enumerology.Transform.extend Enumerology.FilterMixin,
+map = Enumerology.Filter.extend
   addedItem:   (array, item, context)->
     callback    = @get('callback')
     mappedValue = callback.call(context.binding, item)

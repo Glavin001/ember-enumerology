@@ -1,18 +1,14 @@
-anyBy = Enumerology.TransformBy.extend Enumerology.ReduceMixin,
-  trueCount:    0
-  returnValue:  Em.computed.gt('trueCount', 0)
+anyBy = Enumerology.ReduceBy.extend
   initialValue: false
 
   addedItem:  (accumulatedValue, item, context)->
     key   = @get('key')
     value = @get('value')
-    @incrementProperty('trueCount') if item.get(key) == value
-    @get('returnValue')
+    @incrementProperty('matchCount') if item.get(key) == value
 
   removedItem: (accumulatedValue, item, context)->
     key   = @get('key')
     value = @get('value')
-    @decrementProperty('trueCount') if item.get(key) == value
-    @get('returnValue')
+    @decrementProperty('matchCount') if item.get(key) == value
 
 Enumerology.Transform.AnyBy = anyBy

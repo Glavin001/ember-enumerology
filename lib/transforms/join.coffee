@@ -1,5 +1,10 @@
-join = Enumerology.Transform.extend
-  apply: (target, collection)->
-    collection.join(@get('separator'))
+join = Enumerology.Reduce.extend
+  initialValue: ''
+
+  addedItem: (accumulatedValue, item, context)->
+    @set('returnValue', context.arrayChanged.join(@get('separator')))
+
+  removedItem: (accumulatedValue, item, context)->
+    @set('returnValue', context.arrayChanged.join(@get('separator')))
 
 Enumerology.Transform.Join = join

@@ -1,4 +1,4 @@
-uniq = Enumerology.Transform.extend
+uniq = Enumerology.Filter.extend
   apply: (target, collection)->
     collection.uniq(@get('value'))
 

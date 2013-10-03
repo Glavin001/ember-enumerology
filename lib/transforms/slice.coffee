@@ -1,4 +1,4 @@
-slice = Enumerology.Transform.extend
+slice = Enumerology.FilterBy.extend
   apply: (target, collection)->
     begin = @get('begin')
     end   = @get('end')

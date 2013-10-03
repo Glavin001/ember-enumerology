@@ -1,16 +1,12 @@
-any = Enumerology.Transform.extend Enumerology.ReduceMixin,
-  trueCount:    0
-  value:        Em.computed.gt('trueCount', 0)
+any = Enumerology.Reduce.extend
   initialValue: false
 
   addedItem: (accumulatedValue, item, context)->
     callback = @get('callback')
-    @incrementProperty('trueCount') if callback.call(context.binding, item)
-    @get('value')
+    @incrementProperty('matchCount') if callback.call(context.binding, item)
 
   removedItem: (accumulatedValue, item, context)->
     callback = @get('callback')
-    @decrementProperty('trueCount') if callback.call(context.binding, item)
-    @get('value')
+    @decrementProperty('matchCount') if callback.call(context.binding, item)
 
 Enumerology.Transform.Any = any

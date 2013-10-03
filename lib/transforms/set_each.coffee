@@ -1,4 +1,4 @@
-setEach = Enumerology.TransformBy.extend
+setEach = Enumerology.FilterBy.extend
   apply: (target, collection)->
     collection.setEach(@get('key'), @get('value'))
     collection

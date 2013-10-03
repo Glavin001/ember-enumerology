@@ -1,3 +1,3 @@
-without = Enumerology.Transform.extend()
+without = Enumerology.Filter.extend()
 
 Enumerology.Transform.Without = without

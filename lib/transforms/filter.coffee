@@ -1,10 +1,4 @@
-filter = Enumerology.Transform.extend Enumerology.FilterMixin,
-  subArray: undefined
-
-  init: ->
-    @set('subArray', new Ember.SubArray())
-    @_super()
-
+filter = Enumerology.Filter.extend
   addedItem: (array, item, context)->
     callback = @get('callback')
     match = !!callback.call(context.binding, item)

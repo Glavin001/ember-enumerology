@@ -1,4 +1,4 @@
-sortBy = Enumerology.TransformBy.extend
+sortBy = Enumerology.FilterBy.extend
   apply: (target, collection)->
     compareFunction = @get('compareFunction')
     key = @get('key')

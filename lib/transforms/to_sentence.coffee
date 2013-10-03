@@ -1,4 +1,4 @@
-toSentence = Enumerology.Transform.extend
+toSentence = Enumerology.Reduce.extend
   apply: (target, collection)->
     list = collection.slice(0,-1)
     last = collection.slice(-1)
