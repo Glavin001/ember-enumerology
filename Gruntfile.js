@@ -34,7 +34,7 @@ module.exports = function(grunt) {
     coffee: {
       lib: {
         files: {
-          'lib/ember-enumerology.js': ['lib/*.coffee', 'lib/transforms/*.coffee' ],
+          'lib/ember-enumerology.js': ['lib/*.coffee', 'lib/mixins/*.coffee', 'lib/base_transforms/*.coffee', 'lib/transforms/*.coffee'],
         }
       },
       spec: {
