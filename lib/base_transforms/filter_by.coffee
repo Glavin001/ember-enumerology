@@ -1,1 +1,1 @@
-Enumerology.FilterBy = Em.Object.extend Enumerology.FilterMixin, Enumerology.TransformByMixin
+Enumerology.FilterBy = Enumerology.FilterBase.extend Enumerology.TransformByMixin

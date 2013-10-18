@@ -30,3 +30,19 @@ describe 'Acceptance', ->
       it 'is true', ->
         expect(object.get('property')).toBe(true)
 
+      describe 'and it is removed again', ->
+        beforeEach ->
+          run ->
+            object.get('collection').popObject()
+
+        it 'is true', ->
+          expect(object.get('property')).toBe(true)
+
+      describe 'and a non-matching item is added', ->
+        beforeEach ->
+          run ->
+            object.get('collection').pushObject('c')
+
+        it 'is false', ->
+          expect(object.get('property')).toBe(false)
+

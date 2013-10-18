@@ -12,8 +12,8 @@ describe 'Enumerology.Reduce', ->
 
   describe '#isReduce', ->
     it 'is true', ->
-      expect(object.get('isReduce')).toBe(true)
+      expect(Em.get(Enumerology.Reduce, 'isReduce')).toBe(true)
 
   describe '#isFilter', ->
     it 'is false', ->
-      expect(object.get('isFilter')).toBe(false)
+      expect(Em.get(Enumerology.Reduce, 'isFilter')).toBe(false)

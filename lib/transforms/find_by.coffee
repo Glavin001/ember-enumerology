@@ -1,6 +1,5 @@
 findBy = Enumerology.ReduceBy.extend
   initialValue: -> undefined
-  returnValueBinding: 'matches.firstObject'
 
   init: ->
     @set('matches', Em.A())
@@ -15,6 +14,7 @@ findBy = Enumerology.ReduceBy.extend
     filterIndex = subArray.addItem(context.index, match)
     matches     = @get('matches')
     matches.insertAt filterIndex, item if match
+    matches.get('firstObject')
 
   removedItem: (accumulatedValue, item, context)->
     key         = @get('key')
@@ -24,5 +24,6 @@ findBy = Enumerology.ReduceBy.extend
     filterIndex = subArray.removeItem(context.index)
     matches     = @get('matches')
     matches.removeAt filterIndex if (filterIndex > -1) && matches.get('length') > filterIndex
+    matches.get('firstObject')
 
 Enumerology.Transform.FindBy = findBy

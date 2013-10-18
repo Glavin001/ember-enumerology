@@ -19,6 +19,7 @@ describe 'Acceptance', ->
       beforeEach ->
         run ->
           object.get('collection').pushObjects([1,'a',undefined, 'HELLO', null, 'pants'])
+
       it 'joins with the correct separator', ->
         expect(object.get('joinedWithPipe')).toEqual('1|a||HELLO||pants')
         expect(object.get('joinedWithDefault')).toEqual('1,a,,HELLO,,pants')

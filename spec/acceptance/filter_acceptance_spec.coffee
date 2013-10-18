@@ -91,8 +91,6 @@ describe 'Acceptance', ->
         object = Em.Object.createWithMixins
           collection: Em.A()
           filteredCollection: Enumerology.create('collection').filter(isUpperCase).filter(isVowel).finalize()
-        # Force computed property to be created
-        object.get('filteredCollection')
 
     describe 'when the dependent array is empty', ->
       it 'is empty', ->

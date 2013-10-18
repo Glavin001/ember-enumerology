@@ -1,9 +1,45 @@
-sort = Enumerology.FilterBy.extend
-  apply: (target, collection)->
+sort = Enumerology.Filter.extend
+
+  init: ->
+    @_super()
+    @set('positionStore', {})
+
+  addedItem: (array, item, context)->
+
     compareFunction = @get('compareFunction')
-    if Em.isEmpty(compareFunction)
-      collection.slice(0).sort()
+    doCompare       = (itemA,itemB)->
+      compareFunction.call(context.binding, itemA, itemB)
+
+    positionStore = @get('positionStore')
+
+    if array.get('length') == 0
+      positionStore[context.index] = 0
+      array.insertAt(0, item)
+      return array
+
     else
-      collection.slice(0).sort(@get('compareFunction'))
+      for i in [0..array.get('length')-1]
+        c = doCompare(item, array.objectAt(i))
+
+        if c == -1
+          positionStore[context.index] = i
+          array.insertAt(i, item)
+          return array
+
+        if c == 0
+          positionStore[context.index] = i + 1
+          array.insertAt(i + 1, item)
+          return array
+
+      positionStore[context.index] = array.get('length')
+      array.insertAt(array.get('length'), item)
+
+  removedItem: (array, item, context)->
+    positionStore = @get('positionStore')
+
+    array.removeAt(positionStore[context.index])
+    delete positionStore[context.index]
+
+    array
 
 Enumerology.Transform.Sort = sort

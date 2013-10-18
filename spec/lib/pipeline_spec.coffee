@@ -34,7 +34,7 @@ describe 'Enumerology.Pipeline', ->
       it "adds a #{classify(name)} transform", ->
         run ->
           pipeline[name]()
-          expect(pipeline.get('transformations.lastObject').constructor).toEqual(Enumerology.Transform[classify(name)])
+          expect(pipeline.get('transformations.lastObject').superclass).toEqual(Enumerology.Transform[classify(name)])
 
       it 'returns the pipeline', ->
         run ->
@@ -92,6 +92,8 @@ describe 'Enumerology.Pipeline', ->
   itAliases('mapProperty', to: 'mapBy')
   itAliases('size',        to: 'length')
   itAliases('tee',         to: 'invoke')
+  itAliases('some',        to: 'nonEmpty')
+  itAliases('someBy',      to: 'nonEmptyBy')
 
   describe '#finalize', ->
 

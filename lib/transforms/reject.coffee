@@ -1,5 +1,16 @@
 reject = Enumerology.Filter.extend
-  apply: (target, collection)->
-    collection.reject(@get('callback'), @getWithDefault('target', target))
+  addedItem: (array, item, context)->
+    callback = @get('callback')
+    match = !callback.call(context.binding, item)
+    filterIndex = @get('subArray').addItem(context.index, match)
+
+    array.insertAt filterIndex, item if match
+    array
+
+  removedItem: (array, item, context)->
+    filterIndex = @get('subArray').removeItem(context.index)
+
+    array.removeAt filterIndex if (filterIndex > -1) && array.get('length') > filterIndex
+    array
 
 Enumerology.Transform.Reject = reject

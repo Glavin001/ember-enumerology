@@ -17,14 +17,19 @@ compare = (a,b)->
     0
 
 addTransformation = (name, opts={})->
-  newTransform = Enumerology.Transform[classify(name)].create(opts)
-  newTransform.set('pipeline', @)
+  opts['pipeline'] = @
+  newTransform = Enumerology.Transform[classify(name)].extend(opts)
 
   if @get("transformations.length") > 0
     assert "Cannot add any further operations after a reduce operation", @get('transformations.lastObject.isFilter')
 
   @get('transformations').addObject(newTransform)
   @
+
+uniquePipline = (meta, targetKey)->
+  meta['__enumerology__'] = {} if Em.isEmpty(meta['__enumerology__'])
+  meta['__enumerology__'][targetKey] = Em.Object.create() if Em.isEmpty(meta['__enumerology__'][targetKey])
+  meta['__enumerology__'][targetKey]
 
 pipeline = Em.Object.extend
   init: ->
@@ -35,6 +40,8 @@ pipeline = Em.Object.extend
     @['isEmptyBy']   = @['emptyBy']
     @['size']        = @['length']
     @['tee']         = @['invoke']
+    @['some']        = @['nonEmpty']
+    @['someBy']      = @['nonEmptyBy']
     @set('transformations', Em.A())
 
   finalize: ->
@@ -44,28 +51,28 @@ pipeline = Em.Object.extend
     transformations = @get('transformations')
     assert "Must have at least one transformation applied", transformations.get('length') > 0
 
-    lastTransformation = transformations.get('lastObject')
+    firstDependentKey = "#{baseKey}#{transformations.get('firstObject').create().get('dependencies')}"
 
-    dependentKeys   = transformations.map((item)->
-      dependencies = item.get('dependencies')
-      "#{baseKey}#{dependencies}" unless Em.isEmpty(dependencies)
-    ).compact().uniq()
+    Em.computed firstDependentKey, (targetKey)->
+      target   = @
+      meta     = Em.meta(target)
+      pipeline = uniquePipline(meta, targetKey)
 
-    initialValue = lastTransformation.get('initialValue')
-    initialValue = initialValue() if typeof initialValue == 'function'
+      if Em.isEmpty(pipeline.get('target'))
+        pipeline.set('target',  target)
+        pipeline.set('lastKey', "target.#{baseKey}")
 
-    Em.computed dependentKeys..., ->
-      key    = "_target.#{baseKey}"
-      target = @
-      metaProperties = Em.Object.create()
-      metaProperties.set('_target', target)
+        transformations.forEach (transformClass, i)->
+          transform = transformClass.create()
+          computed  = transform.apply(pipeline.get('lastKey'), target)
 
-      transformations.forEach (transform, i)->
-        computed = transform.apply(key, target)
-        key      = "_transform_#{i}_result"
-        Em.defineProperty(metaProperties, key, computed)
+          pipeline.set("transform_#{i}", transform)
+          pipeline.set("computed_#{i}",  computed)
+          pipeline.set('lastKey',        "result_#{i}")
 
-      metaProperties.getWithDefault(key, initialValue)
+          Em.defineProperty(pipeline, pipeline.get('lastKey'), computed)
+
+      pipeline.get(pipeline.get('lastKey'))
 
   any: (callback)->
     addTransformation.call(@, 'any', {callback: callback})
@@ -148,10 +155,10 @@ pipeline = Em.Object.extend
   setEach: (key, value)->
     addTransformation.call(@, 'setEach', {key: key, value: value})
 
-  slice: (begin,end=null)->
+  slice: (begin,end=undefined)->
     addTransformation.call(@, 'slice', {begin: begin, end: end})
 
-  sort: (compareFunction=undefined)->
+  sort: (compareFunction=lexigraphicCompare)->
     addTransformation.call(@, 'sort', {compareFunction: compareFunction})
 
   sortBy: (key,compareFunction=undefined)->

@@ -15,9 +15,9 @@ describe 'Enumerology.Filter', ->
       expect(object.get('initialValue')).toEqual(Em.A())
 
   describe '#isReduce', ->
-    it 'is true', ->
-      expect(object.get('isReduce')).toBe(false)
+    it 'is false', ->
+      expect(Em.get(Enumerology.Filter, 'isReduce')).toBe(false)
 
   describe '#isFilter', ->
-    it 'is false', ->
-      expect(object.get('isFilter')).toBe(true)
+    it 'is true', ->
+      expect(Em.get(Enumerology.Filter, 'isFilter')).toBe(true)

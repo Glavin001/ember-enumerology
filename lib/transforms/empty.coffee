@@ -1,11 +1,13 @@
 empty = Enumerology.Reduce.extend
   initialValue: true
-  returnValue:  Em.computed.equal('matchCount', 0)
+  matchCount:   0
 
-  addedItem: (accumulatedValue, item, context)->
+  addedItem:   (accumulatedValue, item, context)->
     @incrementProperty('matchCount')
+    @get('matchCount') == 0
 
   removedItem: (accumulatedValue, item, context)->
     @decrementProperty('matchCount')
+    @get('matchCount') == 0
 
 Enumerology.Transform.Empty = empty

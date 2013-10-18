@@ -1,5 +1,10 @@
 length = Enumerology.Reduce.extend
-  apply: (target, collection)->
-    collection.get('length')
+  initialValue: 0
+
+  addedItem: (accumulatedValue, item, context)->
+    ++accumulatedValue
+
+  removedItem: (accumulatedValue, item, context)->
+    --accumulatedValue
 
 Enumerology.Transform.Length = length

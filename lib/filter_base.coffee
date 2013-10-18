@@ -1,7 +1,5 @@
-Enumerology.FilterMixin = Em.Mixin.create
+Enumerology.FilterBase = Em.Object.extend
   initialValue: undefined
-  isReduce: false
-  isFilter: true
   subArray: undefined
 
   init: ->
@@ -11,13 +9,14 @@ Enumerology.FilterMixin = Em.Mixin.create
 
   apply: (dependentKey,target)->
     dependency   = "#{dependentKey}#{@get('dependencies')}"
-    initialValue = @get('initialValue')
-    @set('targetKey', dependentKey)
+    @set('dependentKey', dependentKey)
 
     Em.arrayComputed dependency,
-      initialValue: initialValue
+      initialValue: @get('initialValue')
+
       initialize:   (initialValue, changeMeta, instanceMeta)->
         changeMeta.binding = target
+        @reset.call(@, initialValue, changeMeta, instanceMeta) unless Em.isEmpty(@reset)
 
       addedItem:    (accumulator, item, changeMeta, instanceMeta)=>
         @addedItem.call(@, accumulator, item, changeMeta)
@@ -31,3 +30,7 @@ Enumerology.FilterMixin = Em.Mixin.create
 
     array.removeAt filterIndex if (filterIndex > -1) && array.get('length') > filterIndex
     array
+
+Enumerology.FilterBase.reopenClass
+  isReduce: false
+  isFilter: Em.computed.not('isReduce')

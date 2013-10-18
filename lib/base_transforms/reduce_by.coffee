@@ -1,1 +1,1 @@
-Enumerology.ReduceBy = Em.Object.extend Enumerology.ReduceMixin, Enumerology.TransformByMixin
+Enumerology.ReduceBy = Enumerology.ReduceBase.extend Enumerology.TransformByMixin
