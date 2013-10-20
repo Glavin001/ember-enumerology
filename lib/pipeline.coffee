@@ -155,6 +155,9 @@ pipeline = Em.Object.extend
   setEach: (key, value)->
     addTransformation.call(@, 'setEach', {key: key, value: value})
 
+  skip: (count)->
+    addTransformation.call(@, 'slice', {begin: count, end: undefined})
+
   slice: (begin,end=undefined)->
     addTransformation.call(@, 'slice', {begin: begin, end: end})
 
@@ -172,7 +175,7 @@ pipeline = Em.Object.extend
     addTransformation.call(@, 'sortBy', {key: key, compareFunction: numericCompare})
 
   take: (howMany)->
-    addTransformation.call(@, 'take', {howMany: howMany})
+    addTransformation.call(@, 'slice', {begin: 0, end: howMany})
 
   toSentence: (conjunction='and', oxfordComma=false)->
     addTransformation.call(@, 'toSentence', {conjunction: conjunction, oxfordComma: oxfordComma})

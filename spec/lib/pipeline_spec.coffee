@@ -78,7 +78,6 @@ describe 'Enumerology.Pipeline', ->
   itIsATransformation('slice')
   itIsATransformation('sort')
   itIsATransformation('sortBy')
-  itIsATransformation('take')
   itIsATransformation('toSentence')
   itIsATransformation('uniq')
   itIsATransformation('without')

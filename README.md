@@ -198,6 +198,14 @@ see: [Ember.Enumerable#setEach](http://emberjs.com/api/classes/Ember.Enumerable.
 
 note: Ember's `setEach` method doesn't return the original collection, however Enumerology's does to enable chaining.
 
+#### `skip`
+
+Skip over the first *n* elements and return the rest of the collection.
+
+##### Parameters
+
+- `count` - the number of elements to skip over.
+
 #### `slice`
 
 see: [Array#slice](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice)
