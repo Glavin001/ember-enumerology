@@ -6,11 +6,9 @@ setEach = Enumerology.FilterBy.extend
 
     item.set(key, value)
 
-    array.insertAt(context.index, item)
-    array
+    context.arrayChanged
 
   removedItem: (array, item, context)->
-    array.removeAt(context.index)
-    array
+    context.arrayChanged
 
 Enumerology.Transform.SetEach = setEach

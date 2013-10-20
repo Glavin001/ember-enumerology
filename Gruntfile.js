@@ -53,7 +53,7 @@ module.exports = function(grunt) {
           vendor: [
             'bower_components/jquery/jquery.js',
             'bower_components/handlebars/handlebars.js',
-            'bower_components/ember/dist/ember.js'
+            'bower_components/ember/ember.js'
           ]
         }
       }

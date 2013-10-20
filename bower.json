@@ -2,7 +2,7 @@
   "name": "ember-enumerology",
   "version": "0.1.0",
   "dependencies": {
-    "ember": "git://github.com/emberjs/ember.js#60b68ef176ab577c1d5709f629bdae737f8be7f7"
+    "ember": "~1.1.0"
   },
   "ignore": [
     "**/.*",

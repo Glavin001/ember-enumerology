@@ -55,7 +55,6 @@ describe 'Acceptance', ->
   itCalculatesCorrectly 'reject', (-> Enumerology.create('characters').reject((i)-> i == null).length().finalize()), 3
   itCalculatesCorrectly 'rejectBy', (-> Enumerology.create('cast').rejectBy('name', 'Christopher Lloyd').length().finalize()), 2
   itCalculatesCorrectly 'reverse', (-> Enumerology.create('characters').compact().reverse().finalize()), ['Jennifer', 'Doc', 'Marty']
-  itCalculatesCorrectly 'setEach', (-> Enumerology.create('cast').setEach('name', 'Biff').filterBy('name', 'Biff').length().finalize()), 3
   itCalculatesCorrectly 'sort', (-> Enumerology.create('characters').compact().sort().finalize()), ['Doc', 'Jennifer', 'Marty']
   itCalculatesCorrectly 'sortBy', (-> Enumerology.create('cast').sortBy('name').mapBy('name').finalize()), [ 'Christopher Lloyd', 'Claudia Wells', 'Michael J. Fox' ]
   itCalculatesCorrectly 'sortNumerically', (-> Enumerology.create('cast').mapProperty('nameLength').sortNumerically().finalize()), [ 13, 14, 17 ]
@@ -63,4 +62,3 @@ describe 'Acceptance', ->
   itCalculatesCorrectly 'slice', (-> Enumerology.create('characters').slice(1,3).finalize()), ['Doc', 'Jennifer']
   itCalculatesCorrectly 'take', (-> Enumerology.create('characters').take(2).finalize()), ['Marty', 'Doc']
   itCalculatesCorrectly 'toSentence', (-> Enumerology.create('characters').compact().toSentence().finalize()), 'Marty, Doc and Jennifer'
-  itCalculatesCorrectly 'uniq', (-> Enumerology.create('cast').setEach('name', 'Biff').mapBy('name').uniq().finalize()), ['Biff']
