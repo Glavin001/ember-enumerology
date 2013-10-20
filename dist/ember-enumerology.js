@@ -1,4 +1,4 @@
-/*! ember-enumerology - v0.2.4 - 2013-09-23
+/*! ember-enumerology - v0.3.0 - 2013-10-21
 * https://github.com/jamesotron/ember-enumerology
 * Copyright (c) 2013 James Harton; Licensed MIT */
 (function() {
@@ -19,7 +19,54 @@
 }).call(this);
 
 (function() {
-  var addTransformation, assert, classify, compare, lexigraphicCompare, numericCompare, pipeline,
+  Enumerology.FilterBase = Em.Object.extend({
+    initialValue: void 0,
+    subArray: void 0,
+    init: function() {
+      this.set('initialValue', Em.A());
+      this.set('subArray', new Ember.SubArray());
+      return this._super();
+    },
+    apply: function(dependentKey, target) {
+      var dependency,
+        _this = this;
+      dependency = "" + dependentKey + (this.get('dependencies'));
+      this.set('dependentKey', dependentKey);
+      return Em.arrayComputed(dependency, {
+        initialValue: this.get('initialValue'),
+        initialize: function(initialValue, changeMeta, instanceMeta) {
+          changeMeta.binding = target;
+          if (!Em.isEmpty(this.reset)) {
+            return this.reset.call(this, initialValue, changeMeta, instanceMeta);
+          }
+        },
+        addedItem: function(accumulator, item, changeMeta, instanceMeta) {
+          return _this.addedItem.call(_this, accumulator, item, changeMeta);
+        },
+        removedItem: function(accumulator, item, changeMeta, instanceMeta) {
+          return _this.removedItem.call(_this, accumulator, item, changeMeta);
+        }
+      });
+    },
+    removedItem: function(array, item, context) {
+      var filterIndex;
+      filterIndex = this.get('subArray').removeItem(context.index);
+      if ((filterIndex > -1) && array.get('length') > filterIndex) {
+        array.removeAt(filterIndex);
+      }
+      return array;
+    }
+  });
+
+  Enumerology.FilterBase.reopenClass({
+    isReduce: false,
+    isFilter: Em.computed.not('isReduce')
+  });
+
+}).call(this);
+
+(function() {
+  var addTransformation, assert, classify, compare, lexigraphicCompare, numericCompare, pipeline, uniquePipline,
     __slice = [].slice;
 
   classify = function(name) {
@@ -51,11 +98,27 @@
   };
 
   addTransformation = function(name, opts) {
+    var newTransform;
     if (opts == null) {
       opts = {};
     }
-    this.get('transformations').addObject(Enumerology.Transform[classify(name)].create(opts));
+    opts['pipeline'] = this;
+    newTransform = Enumerology.Transform[classify(name)].extend(opts);
+    if (this.get("transformations.length") > 0) {
+      assert("Cannot add any further operations after a reduce operation", this.get('transformations.lastObject.isFilter'));
+    }
+    this.get('transformations').addObject(newTransform);
     return this;
+  };
+
+  uniquePipline = function(meta, targetKey) {
+    if (Em.isEmpty(meta['__enumerology__'])) {
+      meta['__enumerology__'] = {};
+    }
+    if (Em.isEmpty(meta['__enumerology__'][targetKey])) {
+      meta['__enumerology__'][targetKey] = Em.Object.create();
+    }
+    return meta['__enumerology__'][targetKey];
   };
 
   pipeline = Em.Object.extend({
@@ -66,25 +129,38 @@
       this['isEmpty'] = this['empty'];
       this['isEmptyBy'] = this['emptyBy'];
       this['size'] = this['length'];
-      return this.set('transformations', []);
+      this['tee'] = this['invoke'];
+      this['some'] = this['nonEmpty'];
+      this['someBy'] = this['nonEmptyBy'];
+      return this.set('transformations', Em.A());
     },
     finalize: function() {
-      var baseKey, dependentKeys, transformations;
+      var baseKey, firstDependentKey, transformations;
       baseKey = this.get('dependentKey');
       assert("Must have a dependent key", !Em.isEmpty(baseKey));
       transformations = this.get('transformations');
       assert("Must have at least one transformation applied", transformations.get('length') > 0);
-      dependentKeys = transformations.map(function(item) {
-        return "" + baseKey + (item.get('dependencies'));
-      }).uniq();
-      return Ember.computed.apply(Ember, __slice.call(dependentKeys).concat([function() {
-        var result;
-        result = this.getWithDefault(baseKey, []);
-        transformations.forEach(function(transform) {
-          return result = transform.apply(this, result);
-        });
-        return result;
-      }]));
+      firstDependentKey = "" + baseKey + (transformations.get('firstObject').create().get('dependencies'));
+      return Em.computed(firstDependentKey, function(targetKey) {
+        var meta, target;
+        target = this;
+        meta = Em.meta(target);
+        pipeline = uniquePipline(meta, targetKey);
+        if (Em.isEmpty(pipeline.get('target'))) {
+          pipeline.set('target', target);
+          pipeline.set('lastKey', "target." + baseKey);
+          transformations.forEach(function(transformClass, i) {
+            var computed, transform;
+            transform = transformClass.create();
+            computed = transform.apply(pipeline.get('lastKey'), target);
+            pipeline.set("transform_" + i, transform);
+            pipeline.set("computed_" + i, computed);
+            pipeline.set('lastKey', "result_" + i);
+            return Em.defineProperty(pipeline, pipeline.get('lastKey'), computed);
+          });
+        }
+        return pipeline.get(pipeline.get('lastKey'));
+      });
     },
     any: function(callback) {
       return addTransformation.call(this, 'any', {
@@ -188,7 +264,7 @@
     },
     join: function(separator) {
       if (separator == null) {
-        separator = ' ';
+        separator = void 0;
       }
       return addTransformation.call(this, 'join', {
         separator: separator
@@ -255,9 +331,15 @@
         value: value
       });
     },
+    skip: function(count) {
+      return addTransformation.call(this, 'slice', {
+        begin: count,
+        end: void 0
+      });
+    },
     slice: function(begin, end) {
       if (end == null) {
-        end = null;
+        end = void 0;
       }
       return addTransformation.call(this, 'slice', {
         begin: begin,
@@ -266,7 +348,7 @@
     },
     sort: function(compareFunction) {
       if (compareFunction == null) {
-        compareFunction = void 0;
+        compareFunction = lexigraphicCompare;
       }
       return addTransformation.call(this, 'sort', {
         compareFunction: compareFunction
@@ -296,8 +378,9 @@
       });
     },
     take: function(howMany) {
-      return addTransformation.call(this, 'take', {
-        howMany: howMany
+      return addTransformation.call(this, 'slice', {
+        begin: 0,
+        end: howMany
       });
     },
     toSentence: function(conjunction, oxfordComma) {
@@ -327,14 +410,48 @@
 }).call(this);
 
 (function() {
-  Enumerology.Transform = Em.Object.extend({
-    dependencies: '.[]'
+  Enumerology.ReduceBase = Em.Object.extend({
+    initialValue: void 0,
+    matchCount: 0,
+    apply: function(dependentKey, target) {
+      var _this = this;
+      this.set('dependentKey', dependentKey);
+      return Em.reduceComputed(dependentKey, {
+        initialValue: this.get('initialValue'),
+        initialize: function(initialValue, changeMeta, instanceMeta) {
+          changeMeta.binding = target;
+          if (!Em.isEmpty(_this.reset)) {
+            return _this.reset.call(_this, initialValue, changeMeta, instanceMeta);
+          }
+        },
+        addedItem: function(accumulator, item, changeMeta, instanceMeta) {
+          if (!Em.isEmpty(_this.addedItem)) {
+            return _this.addedItem.call(_this, accumulator, item, changeMeta);
+          }
+        },
+        removedItem: function(accumulator, item, changeMeta, instanceMeta) {
+          if (!Em.isEmpty(_this.removedItem)) {
+            return _this.removedItem.call(_this, accumulator, item, changeMeta);
+          }
+        }
+      });
+    }
+  });
+
+  Enumerology.ReduceBase.reopenClass({
+    isReduce: true,
+    isFilter: Em.computed.not('isReduce')
   });
 
 }).call(this);
 
 (function() {
-  Enumerology.TransformBy = Enumerology.Transform.extend({
+  Enumerology.Transform = Em.Object.create();
+
+}).call(this);
+
+(function() {
+  Enumerology.TransformByMixin = Em.Mixin.create({
     dependencies: (function() {
       return ".@each." + (this.get('key'));
     }).property('key')
@@ -343,11 +460,54 @@
 }).call(this);
 
 (function() {
+  Enumerology.TransformMixin = Em.Mixin.create({
+    dependencies: '.[]',
+    initialValue: null
+  });
+
+}).call(this);
+
+(function() {
+  Enumerology.Filter = Enumerology.FilterBase.extend(Enumerology.TransformMixin);
+
+}).call(this);
+
+(function() {
+  Enumerology.FilterBy = Enumerology.FilterBase.extend(Enumerology.TransformByMixin);
+
+}).call(this);
+
+(function() {
+  Enumerology.Reduce = Enumerology.ReduceBase.extend(Enumerology.TransformMixin);
+
+}).call(this);
+
+(function() {
+  Enumerology.ReduceBy = Enumerology.ReduceBase.extend(Enumerology.TransformByMixin);
+
+}).call(this);
+
+(function() {
   var any;
 
-  any = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.any(this.get('callback'), this.getWithDefault('target', target));
+  any = Enumerology.Reduce.extend({
+    initialValue: false,
+    matchCount: 0,
+    addedItem: function(accumulatedValue, item, context) {
+      var callback;
+      callback = this.get('callback');
+      if (callback.call(context.binding, item)) {
+        this.incrementProperty('matchCount');
+      }
+      return this.get('matchCount') > 0;
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      var callback;
+      callback = this.get('callback');
+      if (callback.call(context.binding, item)) {
+        this.decrementProperty('matchCount');
+      }
+      return this.get('matchCount') > 0;
     }
   });
 
@@ -358,9 +518,26 @@
 (function() {
   var anyBy;
 
-  anyBy = Enumerology.TransformBy.extend({
-    apply: function(target, collection) {
-      return collection.anyBy(this.get('key'), this.get('value'));
+  anyBy = Enumerology.ReduceBy.extend({
+    initialValue: false,
+    matchCount: 0,
+    addedItem: function(accumulatedValue, item, context) {
+      var key, value;
+      key = this.get('key');
+      value = this.get('value');
+      if (item.get(key) === value) {
+        this.incrementProperty('matchCount');
+      }
+      return this.get('matchCount') > 0;
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      var key, value;
+      key = this.get('key');
+      value = this.get('value');
+      if (item.get(key) === value) {
+        this.decrementProperty('matchCount');
+      }
+      return this.get('matchCount') > 0;
     }
   });
 
@@ -371,9 +548,24 @@
 (function() {
   var compact;
 
-  compact = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.compact();
+  compact = Enumerology.Filter.extend({
+    addedItem: function(array, item, context) {
+      var filterIndex, match;
+      match = item != null;
+      filterIndex = this.get('subArray').addItem(context.index, match);
+      if (match) {
+        array.insertAt(filterIndex, item);
+      }
+      return array;
+    },
+    removedItem: function(array, item, context) {
+      var filterIndex, match;
+      match = item != null;
+      filterIndex = this.get('subArray').removeItem(context.index, match);
+      if (filterIndex > -1) {
+        array.removeAt(filterIndex);
+      }
+      return array;
     }
   });
 
@@ -384,11 +576,26 @@
 (function() {
   var compactBy;
 
-  compactBy = Enumerology.TransformBy.extend({
-    apply: function(target, collection) {
-      return collection.map(function(i) {
-        return Em.isEmpty(i.get(this.get('key')));
-      }).compact();
+  compactBy = Enumerology.FilterBy.extend({
+    addedItem: function(array, item, context) {
+      var filterIndex, key, match;
+      key = this.get('key');
+      match = item.get(key) != null;
+      filterIndex = this.get('subArray').addItem(context.index, match);
+      if (match) {
+        array.insertAt(filterIndex, item);
+      }
+      return array;
+    },
+    removedItem: function(array, item, context) {
+      var filterIndex, key, match;
+      key = this.get('key');
+      match = item.get(key) != null;
+      filterIndex = this.get('subArray').removeItem(context.index, match);
+      if (filterIndex > -1) {
+        array.removeAt(filterIndex);
+      }
+      return array;
     }
   });
 
@@ -399,9 +606,20 @@
 (function() {
   var contains;
 
-  contains = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.contains(this.get('obj'));
+  contains = Enumerology.Reduce.extend({
+    initialValue: false,
+    matchCount: 0,
+    addedItem: function(accumulatedValue, item, context) {
+      if (item === this.get('obj')) {
+        this.incrementProperty('matchCount');
+      }
+      return this.get('matchCount') > 0;
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      if (item === this.get('obj')) {
+        this.decrementProperty('matchCount');
+      }
+      return this.get('matchCount') > 0;
     }
   });
 
@@ -412,9 +630,16 @@
 (function() {
   var empty;
 
-  empty = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.get('length') === 0;
+  empty = Enumerology.Reduce.extend({
+    initialValue: true,
+    matchCount: 0,
+    addedItem: function(accumulatedValue, item, context) {
+      this.incrementProperty('matchCount');
+      return this.get('matchCount') === 0;
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      this.decrementProperty('matchCount');
+      return this.get('matchCount') === 0;
     }
   });
 
@@ -425,9 +650,24 @@
 (function() {
   var emptyBy;
 
-  emptyBy = Enumerology.TransformBy.extend({
-    apply: function(target, collection) {
-      return collection.mapBy(this.get('key')).compact().get('length') === 0;
+  emptyBy = Enumerology.ReduceBy.extend({
+    initialValue: true,
+    matchCount: 0,
+    addedItem: function(accumulatedValue, item, context) {
+      var key;
+      key = this.get('key');
+      if (item.get(key) != null) {
+        this.incrementProperty('matchCount');
+      }
+      return this.get('matchCount') === 0;
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      var key;
+      key = this.get('key');
+      if (item.get(key) != null) {
+        this.decrementProperty('matchCount');
+      }
+      return this.get('matchCount') === 0;
     }
   });
 
@@ -438,9 +678,32 @@
 (function() {
   var every;
 
-  every = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.every(this.get('callback'), this.getWithDefault('target', target));
+  every = Enumerology.Reduce.extend({
+    initialValue: true,
+    matchCount: 0,
+    totalElements: 0,
+    reset: function() {
+      return this.set('matchCount', 0);
+    },
+    addedItem: function(accumulatedValue, item, context) {
+      var callback, match;
+      callback = this.get('callback');
+      match = !!callback.call(context.binding, item);
+      this.incrementProperty('totalElements');
+      if (match) {
+        this.incrementProperty('matchCount');
+      }
+      return this.get('matchCount') === this.get('totalElements');
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      var callback, match;
+      callback = this.get('callback');
+      match = !!callback.call(context.binding, item);
+      this.decrementProperty('totalElements');
+      if (match) {
+        this.decrementProperty('matchCount');
+      }
+      return this.get('matchCount') === this.get('totalElements');
     }
   });
 
@@ -451,9 +714,31 @@
 (function() {
   var everyBy;
 
-  everyBy = Enumerology.TransformBy.extend({
-    apply: function(target, collection) {
-      return collection.everyBy(this.get('key'), this.get('value'));
+  everyBy = Enumerology.ReduceBy.extend({
+    initialValue: true,
+    matchCount: 0,
+    totalElements: 0,
+    addedItem: function(accumulatedValue, item, context) {
+      var key, match, value;
+      key = this.get('key');
+      value = this.get('value');
+      match = item.get(key) === value;
+      this.incrementProperty('totalElements');
+      if (match) {
+        this.incrementProperty('matchCount');
+      }
+      return this.get('matchCount') === this.get('totalElements');
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      var key, match, value;
+      key = this.get('key');
+      value = this.get('value');
+      match = item.get(key) === value;
+      this.decrementProperty('totalElements');
+      if (match) {
+        this.decrementProperty('matchCount');
+      }
+      return this.get('matchCount') === this.get('totalElements');
     }
   });
 
@@ -464,9 +749,24 @@
 (function() {
   var filter;
 
-  filter = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.filter(this.get('callback'), this.getWithDefault('target', target));
+  filter = Enumerology.Filter.extend({
+    addedItem: function(array, item, context) {
+      var callback, filterIndex, match;
+      callback = this.get('callback');
+      match = !!callback.call(context.binding, item);
+      filterIndex = this.get('subArray').addItem(context.index, match);
+      if (match) {
+        array.insertAt(filterIndex, item);
+      }
+      return array;
+    },
+    removedItem: function(array, item, context) {
+      var filterIndex;
+      filterIndex = this.get('subArray').removeItem(context.index);
+      if ((filterIndex > -1) && array.get('length') > filterIndex) {
+        array.removeAt(filterIndex);
+      }
+      return array;
     }
   });
 
@@ -477,9 +777,28 @@
 (function() {
   var filterBy;
 
-  filterBy = Enumerology.TransformBy.extend({
-    apply: function(target, collection) {
-      return collection.filterBy(this.get('key'), this.get('value'));
+  filterBy = Enumerology.FilterBy.extend({
+    addedItem: function(array, item, context) {
+      var filterIndex, key, match, value;
+      key = this.get('key');
+      value = this.get('value');
+      match = item.get(key) === value;
+      filterIndex = this.get('subArray').addItem(context.index, match);
+      if (match) {
+        array.insertAt(filterIndex, item);
+      }
+      return array;
+    },
+    removedItem: function(array, item, context) {
+      var filterIndex, key, match, value;
+      key = this.get('key');
+      value = this.get('value');
+      match = item.get(key) === value;
+      filterIndex = this.get('subArray').removeItem(context.index);
+      if ((filterIndex > -1) && array.get('length') > filterIndex) {
+        array.removeAt(filterIndex);
+      }
+      return array;
     }
   });
 
@@ -490,9 +809,38 @@
 (function() {
   var find;
 
-  find = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.find(this.get('callback'), this.getWithDefault('target', target));
+  find = Enumerology.Reduce.extend({
+    initialValue: function() {
+      return void 0;
+    },
+    init: function() {
+      this.set('matches', Em.A());
+      this.set('subArray', new Em.SubArray());
+      return this._super();
+    },
+    addedItem: function(accumulatedValue, item, context) {
+      var callback, filterIndex, match, matches, subArray;
+      callback = this.get('callback');
+      match = callback.call(context.binding, item);
+      subArray = this.get('subArray');
+      filterIndex = subArray.addItem(context.index, match);
+      matches = this.get('matches');
+      if (match) {
+        matches.insertAt(filterIndex, item);
+      }
+      return matches.get('firstObject');
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      var callback, filterIndex, match, matches, subArray;
+      callback = this.get('callback');
+      match = callback.call(context.binding, item);
+      subArray = this.get('subArray');
+      filterIndex = subArray.removeItem(context.index);
+      matches = this.get('matches');
+      if ((filterIndex > -1) && matches.get('length') > filterIndex) {
+        matches.removeAt(filterIndex);
+      }
+      return matches.get('firstObject');
     }
   });
 
@@ -503,9 +851,40 @@
 (function() {
   var findBy;
 
-  findBy = Enumerology.TransformBy.extend({
-    apply: function(target, collection) {
-      return collection.findBy(this.get('key'), this.get('value'));
+  findBy = Enumerology.ReduceBy.extend({
+    initialValue: function() {
+      return void 0;
+    },
+    init: function() {
+      this.set('matches', Em.A());
+      this.set('subArray', new Em.SubArray());
+      return this._super();
+    },
+    addedItem: function(accumulatedValue, item, context) {
+      var filterIndex, key, match, matches, subArray, value;
+      key = this.get('key');
+      value = this.get('value');
+      match = item.get(key) === value;
+      subArray = this.get('subArray');
+      filterIndex = subArray.addItem(context.index, match);
+      matches = this.get('matches');
+      if (match) {
+        matches.insertAt(filterIndex, item);
+      }
+      return matches.get('firstObject');
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      var filterIndex, key, match, matches, subArray, value;
+      key = this.get('key');
+      value = this.get('value');
+      match = item.get(key) === value;
+      subArray = this.get('subArray');
+      filterIndex = subArray.removeItem(context.index);
+      matches = this.get('matches');
+      if ((filterIndex > -1) && matches.get('length') > filterIndex) {
+        matches.removeAt(filterIndex);
+      }
+      return matches.get('firstObject');
     }
   });
 
@@ -516,9 +895,24 @@
 (function() {
   var first;
 
-  first = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.get('firstObject');
+  first = Enumerology.Reduce.extend({
+    initialValue: function() {
+      return void 0;
+    },
+    init: function() {
+      return this.set('content', Em.A());
+    },
+    addedItem: function(accumulatedValue, item, context) {
+      var content;
+      content = this.get('content');
+      content.insertAt(context.index, item);
+      return content.get('firstObject');
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      var content;
+      content = this.get('content');
+      content.removeAt(context.index);
+      return content.get('firstObject');
     }
   });
 
@@ -527,12 +921,21 @@
 }).call(this);
 
 (function() {
-  var invoke,
-    __slice = [].slice;
+  var invoke;
 
-  invoke = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.invoke.apply(collection, [this.get('methodName')].concat(__slice.call(this.getWithDefault('args', []))));
+  invoke = Enumerology.Filter.extend({
+    addedItem: function(array, item, context) {
+      var args, method, methodName;
+      methodName = this.get('methodName');
+      args = this.getWithDefault('args', []);
+      method = item.get(methodName);
+      method.apply(item, args);
+      array.insertAt(context.index, item);
+      return array;
+    },
+    removedItem: function(array, item, context) {
+      array.removeAt(context.index);
+      return array;
     }
   });
 
@@ -543,9 +946,22 @@
 (function() {
   var join;
 
-  join = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.join(this.get('separator'));
+  join = Enumerology.Reduce.extend({
+    initialValue: '',
+    init: function() {
+      return this.set('content', Em.A());
+    },
+    addedItem: function(accumulatedValue, item, context) {
+      var content;
+      content = this.get('content');
+      content.insertAt(context.index, item);
+      return content.join(this.get('separator'));
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      var content;
+      content = this.get('content');
+      content.removeAt(context.index);
+      return content.join(this.get('separator'));
     }
   });
 
@@ -556,9 +972,24 @@
 (function() {
   var last;
 
-  last = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.get('lastObject');
+  last = Enumerology.Reduce.extend({
+    initialValue: function() {
+      return void 0;
+    },
+    init: function() {
+      return this.set('content', Em.A());
+    },
+    addedItem: function(accumulatedValue, item, context) {
+      var content;
+      content = this.get('content');
+      content.insertAt(context.index, item);
+      return content.get('lastObject');
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      var content;
+      content = this.get('content');
+      content.removeAt(context.index);
+      return content.get('lastObject');
     }
   });
 
@@ -569,9 +1000,13 @@
 (function() {
   var length;
 
-  length = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.get('length');
+  length = Enumerology.Reduce.extend({
+    initialValue: 0,
+    addedItem: function(accumulatedValue, item, context) {
+      return ++accumulatedValue;
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      return --accumulatedValue;
     }
   });
 
@@ -582,9 +1017,17 @@
 (function() {
   var map;
 
-  map = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.map(this.get('callback'), this.getWithDefault('target', target));
+  map = Enumerology.Filter.extend({
+    addedItem: function(array, item, context) {
+      var callback, mappedValue;
+      callback = this.get('callback');
+      mappedValue = callback.call(context.binding, item);
+      array.insertAt(context.index, mappedValue);
+      return array;
+    },
+    removedItem: function(array, item, context) {
+      array.removeAt(context.index);
+      return array;
     }
   });
 
@@ -595,9 +1038,16 @@
 (function() {
   var mapBy;
 
-  mapBy = Enumerology.TransformBy.extend({
-    apply: function(target, collection) {
-      return collection.mapBy(this.get('key'));
+  mapBy = Enumerology.FilterBy.extend({
+    addedItem: function(array, item, context) {
+      var key;
+      key = this.get('key');
+      array.insertAt(context.index, item.get(key));
+      return array;
+    },
+    removedItem: function(array, item, context) {
+      array.removeAt(context.index);
+      return array;
     }
   });
 
@@ -608,9 +1058,16 @@
 (function() {
   var nonEmpty;
 
-  nonEmpty = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.get('length') > 0;
+  nonEmpty = Enumerology.Reduce.extend({
+    initialValue: false,
+    count: 0,
+    addedItem: function(accumulatedValue, item, context) {
+      this.incrementProperty('count');
+      return this.get('count') > 0;
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      this.decrementProperty('count');
+      return this.get('count') > 0;
     }
   });
 
@@ -621,9 +1078,20 @@
 (function() {
   var nonEmptyBy;
 
-  nonEmptyBy = Enumerology.TransformBy.extend({
-    apply: function(target, collection) {
-      return collection.mapBy(this.get('key')).compact().get('length') > 0;
+  nonEmptyBy = Enumerology.ReduceBy.extend({
+    initialValue: false,
+    count: 0,
+    addedItem: function(accumulatedValue, item, context) {
+      if (!Em.isEmpty(item.get(this.get('key')))) {
+        this.incrementProperty('count');
+      }
+      return this.get('count') > 0;
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      if (!Em.isEmpty(item.get(this.get('key')))) {
+        this.decrementProperty('count');
+      }
+      return this.get('count') > 0;
     }
   });
 
@@ -634,9 +1102,11 @@
 (function() {
   var reduce;
 
-  reduce = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.reduce(this.get('callback'), this.get('initialValue'));
+  reduce = Enumerology.Reduce.extend({
+    addedItem: function(accumulatedValue, item, context) {
+      var callback;
+      callback = this.get('callback');
+      return callback.call(context.binding, accumulatedValue, item, context.index, context.arrayChanged);
     }
   });
 
@@ -647,9 +1117,24 @@
 (function() {
   var reject;
 
-  reject = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.reject(this.get('callback'), this.getWithDefault('target', target));
+  reject = Enumerology.Filter.extend({
+    addedItem: function(array, item, context) {
+      var callback, filterIndex, match;
+      callback = this.get('callback');
+      match = !callback.call(context.binding, item);
+      filterIndex = this.get('subArray').addItem(context.index, match);
+      if (match) {
+        array.insertAt(filterIndex, item);
+      }
+      return array;
+    },
+    removedItem: function(array, item, context) {
+      var filterIndex;
+      filterIndex = this.get('subArray').removeItem(context.index);
+      if ((filterIndex > -1) && array.get('length') > filterIndex) {
+        array.removeAt(filterIndex);
+      }
+      return array;
     }
   });
 
@@ -660,9 +1145,28 @@
 (function() {
   var rejectBy;
 
-  rejectBy = Enumerology.TransformBy.extend({
-    apply: function(target, collection) {
-      return collection.rejectBy(this.get('key'), this.get('value'));
+  rejectBy = Enumerology.FilterBy.extend({
+    addedItem: function(array, item, context) {
+      var filterIndex, key, match, value;
+      key = this.get('key');
+      value = this.get('value');
+      match = item.get(key) !== value;
+      filterIndex = this.get('subArray').addItem(context.index, match);
+      if (match) {
+        array.insertAt(filterIndex, item);
+      }
+      return array;
+    },
+    removedItem: function(array, item, context) {
+      var filterIndex, key, match, value;
+      key = this.get('key');
+      value = this.get('value');
+      match = item.get(key) !== value;
+      filterIndex = this.get('subArray').removeItem(context.index);
+      if ((filterIndex > -1) && array.get('length') > filterIndex) {
+        array.removeAt(filterIndex);
+      }
+      return array;
     }
   });
 
@@ -673,9 +1177,18 @@
 (function() {
   var reverse;
 
-  reverse = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.slice(0).reverse();
+  reverse = Enumerology.Filter.extend({
+    addedItem: function(array, item, context) {
+      var newIndex;
+      newIndex = array.get('length') - context.index;
+      array.insertAt(newIndex, item);
+      return array;
+    },
+    removedItem: function(array, item, context) {
+      var newIndex;
+      newIndex = array.get('length') - context.index;
+      array.removeAt(newIndex - 1);
+      return array;
     }
   });
 
@@ -686,10 +1199,16 @@
 (function() {
   var setEach;
 
-  setEach = Enumerology.TransformBy.extend({
-    apply: function(target, collection) {
-      collection.setEach(this.get('key'), this.get('value'));
-      return collection;
+  setEach = Enumerology.FilterBy.extend({
+    addedItem: function(array, item, context) {
+      var key, value;
+      key = this.get('key');
+      value = this.get('value');
+      item.set(key, value);
+      return context.arrayChanged;
+    },
+    removedItem: function(array, item, context) {
+      return context.arrayChanged;
     }
   });
 
@@ -700,16 +1219,12 @@
 (function() {
   var slice;
 
-  slice = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      var begin, end;
-      begin = this.get('begin');
-      end = this.get('end');
-      if (Em.isEmpty(end)) {
-        return collection.slice(begin);
-      } else {
-        return collection.slice(begin, end);
-      }
+  slice = Enumerology.Filter.extend({
+    addedItem: function(array, item, context) {
+      return context.arrayChanged.slice(this.get('begin'), this.get('end'));
+    },
+    removedItem: function(array, item, context) {
+      return context.arrayChanged.slice(this.get('begin'), this.get('end'));
     }
   });
 
@@ -720,15 +1235,46 @@
 (function() {
   var sort;
 
-  sort = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      var compareFunction;
+  sort = Enumerology.Filter.extend({
+    init: function() {
+      this._super();
+      return this.set('positionStore', {});
+    },
+    addedItem: function(array, item, context) {
+      var c, compareFunction, doCompare, i, positionStore, _i, _ref;
       compareFunction = this.get('compareFunction');
-      if (Em.isEmpty(compareFunction)) {
-        return collection.slice(0).sort();
+      doCompare = function(itemA, itemB) {
+        return compareFunction.call(context.binding, itemA, itemB);
+      };
+      positionStore = this.get('positionStore');
+      if (array.get('length') === 0) {
+        positionStore[context.index] = 0;
+        array.insertAt(0, item);
+        return array;
       } else {
-        return collection.slice(0).sort(this.get('compareFunction'));
+        for (i = _i = 0, _ref = array.get('length') - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          c = doCompare(item, array.objectAt(i));
+          if (c === -1) {
+            positionStore[context.index] = i;
+            array.insertAt(i, item);
+            return array;
+          }
+          if (c === 0) {
+            positionStore[context.index] = i + 1;
+            array.insertAt(i + 1, item);
+            return array;
+          }
+        }
+        positionStore[context.index] = array.get('length');
+        return array.insertAt(array.get('length'), item);
       }
+    },
+    removedItem: function(array, item, context) {
+      var positionStore;
+      positionStore = this.get('positionStore');
+      array.removeAt(positionStore[context.index]);
+      delete positionStore[context.index];
+      return array;
     }
   });
 
@@ -739,14 +1285,47 @@
 (function() {
   var sortBy;
 
-  sortBy = Enumerology.TransformBy.extend({
-    apply: function(target, collection) {
-      var compareFunction, key;
+  sortBy = Enumerology.FilterBy.extend({
+    init: function() {
+      this._super();
+      return this.set('positionStore', {});
+    },
+    addedItem: function(array, item, context) {
+      var c, compareFunction, doCompare, i, key, positionStore, _i, _ref;
       compareFunction = this.get('compareFunction');
       key = this.get('key');
-      return collection.slice(0).sort(function(a, b) {
-        return compareFunction(a.get(key), b.get(key));
-      });
+      doCompare = function(itemA, itemB) {
+        return compareFunction.call(context.binding, itemA, itemB);
+      };
+      positionStore = this.get('positionStore');
+      if (array.get('length') === 0) {
+        positionStore[context.index] = 0;
+        array.insertAt(0, item);
+        return array;
+      } else {
+        for (i = _i = 0, _ref = array.get('length') - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          c = doCompare(item.get(key), array.objectAt(i).get(key));
+          if (c === -1) {
+            positionStore[context.index] = i;
+            array.insertAt(i, item);
+            return array;
+          }
+          if (c === 0) {
+            positionStore[context.index] = i + 1;
+            array.insertAt(i + 1, item);
+            return array;
+          }
+        }
+        positionStore[context.index] = array.get('length');
+        return array.insertAt(array.get('length'), item);
+      }
+    },
+    removedItem: function(array, item, context) {
+      var positionStore;
+      positionStore = this.get('positionStore');
+      array.removeAt(positionStore[context.index]);
+      delete positionStore[context.index];
+      return array;
     }
   });
 
@@ -755,24 +1334,22 @@
 }).call(this);
 
 (function() {
-  var take;
-
-  take = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.slice(0, this.get('howMany'));
-    }
-  });
-
-  Enumerology.Transform.Take = take;
-
-}).call(this);
-
-(function() {
   var toSentence;
 
-  toSentence = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      var conjunction, last, list, oxfordComma;
+  toSentence = Enumerology.Reduce.extend({
+    initialValue: '',
+    addedItem: function(accumulatedValue, item, context) {
+      var collection, conjunction, last, list, oxfordComma;
+      collection = context.arrayChanged;
+      list = collection.slice(0, -1);
+      last = collection.slice(-1);
+      conjunction = this.get('conjunction');
+      oxfordComma = this.get('oxfordComma') ? ',' : '';
+      return "" + (list.join(', ')) + oxfordComma + " " + conjunction + " " + last;
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      var collection, conjunction, last, list, oxfordComma;
+      collection = context.arrayChanged;
       list = collection.slice(0, -1);
       last = collection.slice(-1);
       conjunction = this.get('conjunction');
@@ -788,9 +1365,25 @@
 (function() {
   var uniq;
 
-  uniq = Enumerology.Transform.extend({
-    apply: function(target, collection) {
-      return collection.uniq(this.get('value'));
+  uniq = Enumerology.Filter.extend({
+    addedItem: function(array, item, context) {
+      var filterIndex, match;
+      match = (array.get('length') === 0) || !(array.any(function(i) {
+        return i === item;
+      }));
+      filterIndex = this.get('subArray').addItem(context.index, match);
+      if (filterIndex >= 0) {
+        array.insertAt(filterIndex, item);
+      }
+      return array;
+    },
+    removedItem: function(array, item, context) {
+      var filterIndex;
+      filterIndex = this.get('subArray').removeItem(context.index);
+      if (filterIndex >= 0) {
+        array.removeAt(filterIndex);
+      }
+      return array;
     }
   });
 
@@ -801,7 +1394,7 @@
 (function() {
   var without;
 
-  without = Enumerology.Transform.extend();
+  without = Enumerology.Filter.extend();
 
   Enumerology.Transform.Without = without;
 
