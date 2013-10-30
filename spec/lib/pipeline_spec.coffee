@@ -85,6 +85,8 @@ describe 'Enumerology.Pipeline', ->
   providesMethod('sortNumerically')
   providesMethod('sortNumericallyBy')
 
+  itAliases('all',         to: 'every')
+  itAliases('allBy',       to: 'everyBy')
   itAliases('getEach',     to: 'mapBy')
   itAliases('isEmpty',     to: 'empty')
   itAliases('isEmptyBy',   to: 'emptyBy')

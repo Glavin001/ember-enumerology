@@ -34,6 +34,8 @@ uniquePipline = (meta, targetKey)->
 pipeline = Em.Object.extend
   init: ->
     @_super()
+    @['all']         = @['every']
+    @['allBy']       = @['everyBy']
     @['getEach']     = @['mapBy']
     @['mapProperty'] = @['mapBy']
     @['isEmpty']     = @['empty']
@@ -79,6 +81,9 @@ pipeline = Em.Object.extend
 
   anyBy: (key,value=null)->
     addTransformation.call(@, 'anyBy', {key: key, value: value})
+
+  avg: ->
+    addTransformation.call(@, 'avg', {})
 
   compact: ->
     addTransformation.call(@, 'compact', {})
