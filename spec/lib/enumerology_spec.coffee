@@ -6,7 +6,7 @@ describe 'Enumerology', ->
     expect(Enumerology).toBeDefined()
 
   it 'is the correct version', ->
-    expect(Enumerology.VERSION).toEqual('0.2.4')
+    expect(Enumerology.VERSION).toEqual('0.3.1')
 
   describe '#create', ->
     key = -> 'foo'
