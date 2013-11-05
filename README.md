@@ -68,7 +68,7 @@ see: [Ember.Enumerable#any](http://emberjs.com/api/classes/Ember.Enumerable.html
 
 #### `anyBy`
 
-see: [Ember.Enumerable#anyBy](http://emberjs.com/api/classes/Ember.Enumerable.html#method_anyBy)
+Deprecated, use `isAny` instead.
 
 #### `compact`
 
@@ -104,9 +104,9 @@ see: [Ember.Enumerable#every](http://emberjs.com/api/classes/Ember.Enumerable.ht
 
 #### `everyBy`
 
-see: [Ember.Enumerable#everyBy](http://emberjs.com/api/classes/Ember.Enumerable.html#method_everyBy)
+Deprecated, use `isEvery` instead.
 
-#### `filter`
+####`filter`
 
 see: [Ember.Enumerable#filter](http://emberjs.com/api/classes/Ember.Enumerable.html#method_filter)
 
@@ -130,13 +130,13 @@ Returns the first element of the collection.
 
 see: [Ember.Enumerable#invoke](http://emberjs.com/api/classes/Ember.Enumerable.html#method_invoke)
 
-#### `isEmpty`
+#### `isAny`
 
-alias for `empty`
+see: [Ember.Enumerable#anyBy](http://emberjs.com/api/classes/Ember.Enumerable.html#method_anyBy)
 
-#### `isEmptyBy`
+#### `isEvery`
 
-alias for `emptyBy`
+see: [Ember.Enumerable#everyBy](http://emberjs.com/api/classes/Ember.Enumerable.html#method_everyBy)
 
 #### `join`
 

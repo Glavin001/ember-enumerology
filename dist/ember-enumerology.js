@@ -1,4 +1,4 @@
-/*! ember-enumerology - v0.3.0 - 2013-10-21
+/*! ember-enumerology - v0.3.0 - 2013-11-06
 * https://github.com/jamesotron/ember-enumerology
 * Copyright (c) 2013 James Harton; Licensed MIT */
 (function() {
@@ -124,10 +124,13 @@
   pipeline = Em.Object.extend({
     init: function() {
       this._super();
+      this['all'] = this['every'];
+      this['allBy'] = this['isEvery'];
+      this['isAll'] = this['isEvery'];
+      this['anyBy'] = this['isAny'];
+      this['everyBy'] = this['isEvery'];
       this['getEach'] = this['mapBy'];
       this['mapProperty'] = this['mapBy'];
-      this['isEmpty'] = this['empty'];
-      this['isEmptyBy'] = this['emptyBy'];
       this['size'] = this['length'];
       this['tee'] = this['invoke'];
       this['some'] = this['nonEmpty'];
@@ -167,15 +170,6 @@
         callback: callback
       });
     },
-    anyBy: function(key, value) {
-      if (value == null) {
-        value = null;
-      }
-      return addTransformation.call(this, 'anyBy', {
-        key: key,
-        value: value
-      });
-    },
     compact: function() {
       return addTransformation.call(this, 'compact', {});
     },
@@ -204,15 +198,6 @@
       return addTransformation.call(this, 'every', {
         callback: callback,
         target: target
-      });
-    },
-    everyBy: function(key, value) {
-      if (value == null) {
-        value = null;
-      }
-      return addTransformation.call(this, 'everyBy', {
-        key: key,
-        value: value
       });
     },
     filter: function(callback, target) {
@@ -260,6 +245,24 @@
       return addTransformation.call(this, 'invoke', {
         methodName: methodName,
         args: args
+      });
+    },
+    isAny: function(key, value) {
+      if (value == null) {
+        value = null;
+      }
+      return addTransformation.call(this, 'isAny', {
+        key: key,
+        value: value
+      });
+    },
+    isEvery: function(key, value) {
+      if (value == null) {
+        value = null;
+      }
+      return addTransformation.call(this, 'isEvery', {
+        key: key,
+        value: value
       });
     },
     join: function(separator) {
@@ -516,36 +519,6 @@
 }).call(this);
 
 (function() {
-  var anyBy;
-
-  anyBy = Enumerology.ReduceBy.extend({
-    initialValue: false,
-    matchCount: 0,
-    addedItem: function(accumulatedValue, item, context) {
-      var key, value;
-      key = this.get('key');
-      value = this.get('value');
-      if (item.get(key) === value) {
-        this.incrementProperty('matchCount');
-      }
-      return this.get('matchCount') > 0;
-    },
-    removedItem: function(accumulatedValue, item, context) {
-      var key, value;
-      key = this.get('key');
-      value = this.get('value');
-      if (item.get(key) === value) {
-        this.decrementProperty('matchCount');
-      }
-      return this.get('matchCount') > 0;
-    }
-  });
-
-  Enumerology.Transform.AnyBy = anyBy;
-
-}).call(this);
-
-(function() {
   var compact;
 
   compact = Enumerology.Filter.extend({
@@ -708,41 +681,6 @@
   });
 
   Enumerology.Transform.Every = every;
-
-}).call(this);
-
-(function() {
-  var everyBy;
-
-  everyBy = Enumerology.ReduceBy.extend({
-    initialValue: true,
-    matchCount: 0,
-    totalElements: 0,
-    addedItem: function(accumulatedValue, item, context) {
-      var key, match, value;
-      key = this.get('key');
-      value = this.get('value');
-      match = item.get(key) === value;
-      this.incrementProperty('totalElements');
-      if (match) {
-        this.incrementProperty('matchCount');
-      }
-      return this.get('matchCount') === this.get('totalElements');
-    },
-    removedItem: function(accumulatedValue, item, context) {
-      var key, match, value;
-      key = this.get('key');
-      value = this.get('value');
-      match = item.get(key) === value;
-      this.decrementProperty('totalElements');
-      if (match) {
-        this.decrementProperty('matchCount');
-      }
-      return this.get('matchCount') === this.get('totalElements');
-    }
-  });
-
-  Enumerology.Transform.EveryBy = everyBy;
 
 }).call(this);
 
@@ -940,6 +878,71 @@
   });
 
   Enumerology.Transform.Invoke = invoke;
+
+}).call(this);
+
+(function() {
+  var isAny;
+
+  isAny = Enumerology.ReduceBy.extend({
+    initialValue: false,
+    matchCount: 0,
+    addedItem: function(accumulatedValue, item, context) {
+      var key, value;
+      key = this.get('key');
+      value = this.get('value');
+      if (item.get(key) === value) {
+        this.incrementProperty('matchCount');
+      }
+      return this.get('matchCount') > 0;
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      var key, value;
+      key = this.get('key');
+      value = this.get('value');
+      if (item.get(key) === value) {
+        this.decrementProperty('matchCount');
+      }
+      return this.get('matchCount') > 0;
+    }
+  });
+
+  Enumerology.Transform.IsAny = isAny;
+
+}).call(this);
+
+(function() {
+  var isEvery;
+
+  isEvery = Enumerology.ReduceBy.extend({
+    initialValue: true,
+    matchCount: 0,
+    totalElements: 0,
+    addedItem: function(accumulatedValue, item, context) {
+      var key, match, value;
+      key = this.get('key');
+      value = this.get('value');
+      match = item.get(key) === value;
+      this.incrementProperty('totalElements');
+      if (match) {
+        this.incrementProperty('matchCount');
+      }
+      return this.get('matchCount') === this.get('totalElements');
+    },
+    removedItem: function(accumulatedValue, item, context) {
+      var key, match, value;
+      key = this.get('key');
+      value = this.get('value');
+      match = item.get(key) === value;
+      this.decrementProperty('totalElements');
+      if (match) {
+        this.decrementProperty('matchCount');
+      }
+      return this.get('matchCount') === this.get('totalElements');
+    }
+  });
+
+  Enumerology.Transform.IsEvery = isEvery;
 
 }).call(this);
 

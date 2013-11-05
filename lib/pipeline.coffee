@@ -35,11 +35,12 @@ pipeline = Em.Object.extend
   init: ->
     @_super()
     @['all']         = @['every']
-    @['allBy']       = @['everyBy']
+    @['allBy']       = @['isEvery']
+    @['isAll']       = @['isEvery']
+    @['anyBy']       = @['isAny']
+    @['everyBy']     = @['isEvery']
     @['getEach']     = @['mapBy']
     @['mapProperty'] = @['mapBy']
-    @['isEmpty']     = @['empty']
-    @['isEmptyBy']   = @['emptyBy']
     @['size']        = @['length']
     @['tee']         = @['invoke']
     @['some']        = @['nonEmpty']
@@ -79,12 +80,6 @@ pipeline = Em.Object.extend
   any: (callback)->
     addTransformation.call(@, 'any', {callback: callback})
 
-  anyBy: (key,value=null)->
-    addTransformation.call(@, 'anyBy', {key: key, value: value})
-
-  avg: ->
-    addTransformation.call(@, 'avg', {})
-
   compact: ->
     addTransformation.call(@, 'compact', {})
 
@@ -103,9 +98,6 @@ pipeline = Em.Object.extend
   every: (callback, target=null)->
     addTransformation.call(@, 'every', {callback: callback, target: target})
 
-  everyBy: (key, value=null)->
-    addTransformation.call(@, 'everyBy', {key: key, value: value})
-
   filter: (callback, target=null)->
     addTransformation.call(@, 'filter', {callback: callback, target: target})
 
@@ -123,6 +115,12 @@ pipeline = Em.Object.extend
 
   invoke: (methodName, args...)->
     addTransformation.call(@, 'invoke', {methodName: methodName, args: args})
+
+  isAny: (key,value=null)->
+    addTransformation.call(@, 'isAny', {key: key, value: value})
+
+  isEvery: (key, value=null)->
+    addTransformation.call(@, 'isEvery', {key: key, value: value})
 
   join: (separator=undefined)->
     addTransformation.call(@, 'join', {separator: separator})

@@ -1,4 +1,4 @@
-everyBy = Enumerology.ReduceBy.extend
+isEvery = Enumerology.ReduceBy.extend
   initialValue:  true
   matchCount:    0
   totalElements: 0
@@ -19,4 +19,4 @@ everyBy = Enumerology.ReduceBy.extend
     @decrementProperty('matchCount') if match
     @get('matchCount') == @get('totalElements')
 
-Enumerology.Transform.EveryBy = everyBy
+Enumerology.Transform.IsEvery = isEvery

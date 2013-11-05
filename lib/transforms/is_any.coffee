@@ -1,4 +1,4 @@
-anyBy = Enumerology.ReduceBy.extend
+isAny = Enumerology.ReduceBy.extend
   initialValue: false
   matchCount:   0
 
@@ -14,4 +14,4 @@ anyBy = Enumerology.ReduceBy.extend
     @decrementProperty('matchCount') if item.get(key) == value
     @get('matchCount') > 0
 
-Enumerology.Transform.AnyBy = anyBy
+Enumerology.Transform.IsAny = isAny
